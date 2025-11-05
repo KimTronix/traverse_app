@@ -83,6 +83,8 @@ class AttractionsService {
     Map<String, dynamic>? openingHours,
     double? entryFee,
     String? currency,
+    String? priceRange,
+    List<String>? amenities,
   }) async {
     try {
       final response = await SupabaseService.instance.client
@@ -103,6 +105,8 @@ class AttractionsService {
             if (openingHours != null) 'opening_hours': openingHours,
             if (entryFee != null) 'entry_fee': entryFee,
             if (currency != null) 'currency': currency,
+            if (priceRange != null) 'price_range': priceRange,
+            if (amenities != null) 'amenities': amenities,
             // Don't set these - let database defaults handle them:
             // rating: 0.0 (DB DEFAULT)
             // review_count: 0 (DB DEFAULT)

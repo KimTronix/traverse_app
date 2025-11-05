@@ -310,7 +310,7 @@ class AuthProvider with ChangeNotifier {
       case 'admin':
         return '/admin';
       case 'business':
-        return '/business-dashboard';
+        return '/home';
       case 'guide':
       case 'traveler':
       default:

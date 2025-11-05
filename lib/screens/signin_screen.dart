@@ -38,21 +38,17 @@ class _SignInScreenState extends State<SignInScreen>
       vsync: this,
     );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOutCubic,
-    ));
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
 
     _animationController.forward();
   }
@@ -156,7 +152,7 @@ class _SignInScreenState extends State<SignInScreen>
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
-     
+
       body: SafeArea(
         child: FadeTransition(
           opacity: _fadeAnimation,
@@ -172,14 +168,25 @@ class _SignInScreenState extends State<SignInScreen>
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     // Header
-                    Hero(
-                      tag: 'logo',
-                      child: Icon(
-                        IconStandards.getUIIcon('travel_explore'),
-                        size: 48,
-                        color: AppTheme.primaryBlue,
-                      ),
-                    ),
+                    Center(
+      child: Container(
+        width: 80, // Adjust size as needed
+        height: 80, // Adjust size as needed
+        decoration: BoxDecoration(
+          color: AppTheme.primaryBlue, // Blue background
+          shape: BoxShape.circle, // Makes it circular
+        ),
+        child: ClipOval( // Use ClipOval for circular clipping
+          child: Container(
+            padding: const EdgeInsets.all(16), // Add padding inside the circle
+            child: Image.asset(
+              'assets/icons/logo.png',
+              fit: BoxFit.contain,
+            ),
+          ),
+        ),
+      ),
+    ),
                     const SizedBox(height: AppConstants.mdSpacing),
 
                     const Text(
@@ -279,7 +286,6 @@ class _SignInScreenState extends State<SignInScreen>
                     //     const Expanded(child: Divider(color: AppTheme.borderLight)),
                     //   ],
                     // ),
-
                     const SizedBox(height: AppConstants.xlSpacing),
 
                     // Form Fields
@@ -327,7 +333,8 @@ class _SignInScreenState extends State<SignInScreen>
                                 setState(() => _rememberMe = value ?? false);
                               },
                               activeColor: AppTheme.primaryBlue,
-                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
                             ),
                             const Text(
                               'Remember me',
@@ -343,7 +350,9 @@ class _SignInScreenState extends State<SignInScreen>
                             // TODO: Implement forgot password
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('Forgot password feature coming soon!'),
+                                content: Text(
+                                  'Forgot password feature coming soon!',
+                                ),
                               ),
                             );
                           },

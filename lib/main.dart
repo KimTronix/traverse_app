@@ -150,7 +150,7 @@ final GoRouter _router = GoRouter(
       pageBuilder: (context, state) => TraverseTransitionPage(
         key: state.pageKey,
         child: const TravelPlanScreen(),
-        transitionType: PageTransitionType.slideRight,
+        transitionType: PageTransitionType.fadeScale,
       ),
     ),
     GoRoute(
@@ -158,7 +158,7 @@ final GoRouter _router = GoRouter(
       pageBuilder: (context, state) => TraverseTransitionPage(
         key: state.pageKey,
         child: const MessagesScreen(),
-        transitionType: PageTransitionType.slideLeft,
+        transitionType: PageTransitionType.fadeScale,
       ),
     ),
     GoRoute(
@@ -166,7 +166,7 @@ final GoRouter _router = GoRouter(
       pageBuilder: (context, state) => TraverseTransitionPage(
         key: state.pageKey,
         child: const WalletScreen(),
-        transitionType: PageTransitionType.slideLeft,
+        transitionType: PageTransitionType.fadeScale,
       ),
     ),
     GoRoute(
@@ -174,7 +174,7 @@ final GoRouter _router = GoRouter(
       pageBuilder: (context, state) => TraverseTransitionPage(
         key: state.pageKey,
         child: const ProfileScreen(),
-        transitionType: PageTransitionType.slideLeft,
+        transitionType: PageTransitionType.fadeScale,
       ),
     ),
     GoRoute(
@@ -339,10 +339,10 @@ class TestScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                IconStandards.getUIIcon('flight'),
-                size: 80,
-                color: Colors.blue,
+              Image.asset(
+                'assets/icons/logo.png',
+                width: 80,
+                height: 80,
               ),
               const SizedBox(height: 24),
               Text(

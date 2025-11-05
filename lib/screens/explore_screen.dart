@@ -27,11 +27,15 @@ class _ExploreScreenState extends State<ExploreScreen>
   List<Map<String, dynamic>> _people = [];
   bool _isLoadingPeople = false;
 
+  List<Map<String, dynamic>> _chatRooms = [];
+  bool _isLoadingChatRooms = false;
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _loadPeople();
+    _loadChatRooms();
   }
 
   @override

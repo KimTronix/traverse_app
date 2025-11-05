@@ -123,116 +123,121 @@ class _HomeScreenState extends State<HomeScreen>
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
       body: SafeArea(
-        child: CustomScrollView(
-          controller: _scrollController,
-          physics: const BouncingScrollPhysics(),
-          slivers: [
-            // Animated Header
-            SliverToBoxAdapter(
-              child: AnimatedBuilder(
-                animation: _headerAnimationController,
-                builder: (context, child) => Transform.translate(
-                  offset: Offset(0, _headerSlideAnimation.value),
-                  child: FadeTransition(
-                    opacity: _headerFadeAnimation,
-                    child: _buildHeader(authProvider, isSmallScreen),
-                  ),
+        child: Column(
+          children: [
+            // Fixed Header - doesn't scroll
+            AnimatedBuilder(
+              animation: _headerAnimationController,
+              builder: (context, child) => Transform.translate(
+                offset: Offset(0, _headerSlideAnimation.value),
+                child: FadeTransition(
+                  opacity: _headerFadeAnimation,
+                  child: _buildHeader(authProvider, isSmallScreen),
                 ),
               ),
             ),
 
-            // Animated Stories
-            SliverToBoxAdapter(
-              child: AnimatedBuilder(
-                animation: _storyAnimationController,
-                builder: (context, child) => SlideTransition(
-                  position: Tween<Offset>(
-                    begin: const Offset(-1.0, 0.0),
-                    end: Offset.zero,
-                  ).animate(CurvedAnimation(
-                    parent: _storyAnimationController,
-                    curve: Curves.easeOutCubic,
-                  )),
-                  child: _buildStories(travelProvider, isSmallScreen),
-                ),
-              ),
-            ),
-
-            // Animated Places Section
-            SliverToBoxAdapter(
-              child: AnimatedBuilder(
-                animation: _storyAnimationController,
-                builder: (context, child) => SlideTransition(
-                  position: Tween<Offset>(
-                    begin: const Offset(1.0, 0.0),
-                    end: Offset.zero,
-                  ).animate(CurvedAnimation(
-                    parent: _storyAnimationController,
-                    curve: Curves.easeOutCubic,
-                  )),
-                  child: _buildPlacesSection(travelProvider, isSmallScreen),
-                ),
-              ),
-            ),
-
-            // Animated Posts by Others Section
-            SliverToBoxAdapter(
-              child: AnimatedBuilder(
-                animation: _storyAnimationController,
-                builder: (context, child) => FadeTransition(
-                  opacity: CurvedAnimation(
-                    parent: _storyAnimationController,
-                    curve: const Interval(0.5, 1.0, curve: Curves.easeOut),
-                  ),
-                  child: _buildPostsByOthersSection(travelProvider, isSmallScreen),
-                ),
-              ),
-            ),
-
-            // Posts By Others Section Header
-            SliverToBoxAdapter(
-              child: AnimatedBuilder(
-                animation: _storyAnimationController,
-                builder: (context, child) => FadeTransition(
-                  opacity: CurvedAnimation(
-                    parent: _storyAnimationController,
-                    curve: const Interval(0.6, 1.0, curve: Curves.easeOut),
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: isSmallScreen ? AppConstants.mdSpacing : AppConstants.lgSpacing,
-                      vertical: AppConstants.smSpacing,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Posts By Others',
-                          style: TextStyle(
-                            fontSize: isSmallScreen ? 20 : 24,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.textPrimary,
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () => context.go('/explore'),
-                          child: Text(
-                            'View All',
-                            style: TextStyle(
-                              color: AppTheme.primaryBlue,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
+            // Scrollable content
+            Expanded(
+              child: CustomScrollView(
+                controller: _scrollController,
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  // Animated Stories
+                  SliverToBoxAdapter(
+                    child: AnimatedBuilder(
+                      animation: _storyAnimationController,
+                      builder: (context, child) => SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(-1.0, 0.0),
+                          end: Offset.zero,
+                        ).animate(CurvedAnimation(
+                          parent: _storyAnimationController,
+                          curve: Curves.easeOutCubic,
+                        )),
+                        child: _buildStories(travelProvider, isSmallScreen),
+                      ),
                     ),
                   ),
-                ),
+
+                  // Animated Places Section
+                  SliverToBoxAdapter(
+                    child: AnimatedBuilder(
+                      animation: _storyAnimationController,
+                      builder: (context, child) => SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(1.0, 0.0),
+                          end: Offset.zero,
+                        ).animate(CurvedAnimation(
+                          parent: _storyAnimationController,
+                          curve: Curves.easeOutCubic,
+                        )),
+                        child: _buildPlacesSection(travelProvider, isSmallScreen),
+                      ),
+                    ),
+                  ),
+
+                  // Animated Posts by Others Section
+                  SliverToBoxAdapter(
+                    child: AnimatedBuilder(
+                      animation: _storyAnimationController,
+                      builder: (context, child) => FadeTransition(
+                        opacity: CurvedAnimation(
+                          parent: _storyAnimationController,
+                          curve: const Interval(0.5, 1.0, curve: Curves.easeOut),
+                        ),
+                        child: _buildPostsByOthersSection(travelProvider, isSmallScreen),
+                      ),
+                    ),
+                  ),
+
+                  // Posts By Others Section Header
+                  SliverToBoxAdapter(
+                    child: AnimatedBuilder(
+                      animation: _storyAnimationController,
+                      builder: (context, child) => FadeTransition(
+                        opacity: CurvedAnimation(
+                          parent: _storyAnimationController,
+                          curve: const Interval(0.6, 1.0, curve: Curves.easeOut),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: isSmallScreen ? AppConstants.mdSpacing : AppConstants.lgSpacing,
+                            vertical: AppConstants.smSpacing,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Posts By Others',
+                                style: TextStyle(
+                                  fontSize: isSmallScreen ? 20 : 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.textPrimary,
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () => context.go('/explore'),
+                                child: Text(
+                                  'View All',
+                                  style: TextStyle(
+                                    color: AppTheme.primaryBlue,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Posts Feed
+                  _buildAnimatedPostsFeed(travelProvider, isSmallScreen),
+                ],
               ),
             ),
-
-            // Posts Feed
-            _buildAnimatedPostsFeed(travelProvider, isSmallScreen),
           ],
         ),
       ),
@@ -279,15 +284,19 @@ class _HomeScreenState extends State<HomeScreen>
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(AppConstants.smSpacing),
+                padding: const EdgeInsets.all(0.0),
                 decoration: BoxDecoration(
                   color: AppTheme.primaryBlue,
-                  borderRadius: BorderRadius.circular(AppConstants.mdRadius),
+                  borderRadius: BorderRadius.circular(AppConstants.xxlRadius),
                 ),
-                child: Icon(
-                  IconStandards.getUIIcon('flight'),
-                  color: Colors.white,
-                  size: isSmallScreen ? 18 : 20,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppConstants.xxlRadius),
+                  child: Image.asset(
+                    'assets/icons/logo.png',
+                    width: isSmallScreen ? 32 : 32,
+                    height: isSmallScreen ? 32 : 32,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
               const SizedBox(width: AppConstants.smSpacing),
@@ -338,26 +347,12 @@ class _HomeScreenState extends State<HomeScreen>
 
           // AI Chat - Enhanced button
           Container(
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [AppTheme.primaryBlue, AppTheme.primaryPurple],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(AppConstants.mdRadius),
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.primaryBlue.withValues(alpha: 0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
+            
             child: CustomIconButton(
               onPressed: () => context.go('/traverse-ai'),
               icon: Icons.psychology,
               size: isSmallScreen ? 20 : 24,
-              color: Colors.white,
+              color: AppTheme.primaryBlue,
             ),
           ),
 

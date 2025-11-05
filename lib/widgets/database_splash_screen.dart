@@ -73,10 +73,14 @@ class _DatabaseSplashScreenState extends State<DatabaseSplashScreen> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Icon(
-                  IconStandards.getUIIcon('flight'),
-                  size: 60,
-                  color: const Color(0xFF1E3A8A),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.asset(
+                    'assets/icons/logo.png',
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
               const SizedBox(height: 30),

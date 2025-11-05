@@ -162,15 +162,19 @@ class _LandingScreenState extends State<LandingScreen>
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(AppConstants.smSpacing),
+          padding: const EdgeInsets.all(0.0),
           decoration: BoxDecoration(
-            color: AppTheme.primaryBlue,
-            borderRadius: BorderRadius.circular(AppConstants.mdRadius),
+            color: const Color.fromARGB(255, 30, 64, 175),
+            borderRadius: BorderRadius.circular(AppConstants.xxlRadius),
           ),
-          child: Icon(
-            IconStandards.getUIIcon('flight'),
-            color: Colors.white,
-            size: 24,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(AppConstants.xxlRadius),
+            child: Image.asset(
+              'assets/icons/logo.png',
+              width: 32,
+              height: 32,
+              fit: BoxFit.contain,
+            ),
           ),
         ),
         const SizedBox(width: AppConstants.smSpacing),
