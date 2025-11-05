@@ -70,7 +70,7 @@ class _DatabaseSplashScreenState extends State<DatabaseSplashScreen> {
                 width: 100,
                 height: 100,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: const Color(0xFF1E3A8A),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: ClipRRect(
@@ -87,7 +87,7 @@ class _DatabaseSplashScreenState extends State<DatabaseSplashScreen> {
 
               // App Name
               const Text(
-                'Traverse',
+                '',
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,

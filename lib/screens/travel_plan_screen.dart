@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/travel_provider.dart';
+import '../services/attractions_service.dart';
 import '../utils/constants.dart';
 import '../utils/theme.dart';
 import '../utils/icon_standards.dart';
@@ -21,7 +22,8 @@ class TravelPlanScreen extends StatefulWidget {
 class _TravelPlanScreenState extends State<TravelPlanScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final _formKey = GlobalKey<FormState>();
-  
+  final AttractionsService _attractionsService = AttractionsService.instance;
+
   String _selectedDestination = '';
   DateTime? _startDate;
   DateTime? _endDate;
@@ -30,11 +32,66 @@ class _TravelPlanScreenState extends State<TravelPlanScreen> with SingleTickerPr
   List<String> _selectedActivities = [];
   String _travelStyle = 'Casual';
 
+  // Database data
+  List<Map<String, dynamic>> _destinations = [];
+  List<Map<String, dynamic>> _hotels = [];
+  List<Map<String, dynamic>> _transports = [];
+  bool _isLoadingDestinations = true;
+  bool _isLoadingHotels = true;
+  bool _isLoadingTransports = true;
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _initializeWithSuggestedTrip();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    await Future.wait([
+      _loadDestinations(),
+      _loadHotels(),
+      _loadTransports(),
+    ]);
+  }
+
+  Future<void> _loadDestinations() async {
+    try {
+      final attractions = await _attractionsService.getApprovedAttractions();
+      setState(() {
+        _destinations = attractions.where((a) =>
+          a['category'] != 'hotel' && a['category'] != 'transport'
+        ).toList();
+        _isLoadingDestinations = false;
+      });
+    } catch (e) {
+      setState(() => _isLoadingDestinations = false);
+    }
+  }
+
+  Future<void> _loadHotels() async {
+    try {
+      final hotels = await _attractionsService.getAttractionsByCategory('hotel');
+      setState(() {
+        _hotels = hotels;
+        _isLoadingHotels = false;
+      });
+    } catch (e) {
+      setState(() => _isLoadingHotels = false);
+    }
+  }
+
+  Future<void> _loadTransports() async {
+    try {
+      final transports = await _attractionsService.getAttractionsByCategory('transport');
+      setState(() {
+        _transports = transports;
+        _isLoadingTransports = false;
+      });
+    } catch (e) {
+      setState(() => _isLoadingTransports = false);
+    }
   }
 
   void _initializeWithSuggestedTrip() {
@@ -233,7 +290,7 @@ class _TravelPlanScreenState extends State<TravelPlanScreen> with SingleTickerPr
                   _selectedDestination = value ?? '';
                 });
               },
-              items: AppConstants.sampleDestinations.map((destination) {
+              items: _destinations.map((destination) {
                 return DropdownMenuItem<String>(
                   value: destination['name'] as String,
                   child: Text(
@@ -501,39 +558,119 @@ class _TravelPlanScreenState extends State<TravelPlanScreen> with SingleTickerPr
   }
 
   Widget _buildDestinationsTab(TravelProvider travelProvider, bool isSmallScreen) {
+    if (_isLoadingDestinations) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_destinations.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              IconStandards.getUIIcon('explore'),
+              size: 64,
+              color: Colors.grey[400],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No destinations available',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[600],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return ListView.builder(
       padding: EdgeInsets.all(isSmallScreen ? AppConstants.smSpacing : AppConstants.mdSpacing),
-      itemCount: AppConstants.sampleDestinations.length,
+      itemCount: _destinations.length,
       itemBuilder: (context, index) {
-        final destination = AppConstants.sampleDestinations[index];
-        return ListTile(
-          leading: CircleAvatar(
-            backgroundImage: AssetImage(destination['image'] as String),
-            radius: isSmallScreen ? 20 : 24,
+        final destination = _destinations[index];
+        final images = destination['images'] as List?;
+        final hasImage = images != null && images.isNotEmpty;
+
+        return Container(
+          margin: const EdgeInsets.only(bottom: AppConstants.mdSpacing),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(AppConstants.mdRadius),
+            border: Border.all(color: AppTheme.borderLight),
           ),
-          title: Text(
-            destination['name'] as String,
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: isSmallScreen ? 13 : 14,
+          child: ListTile(
+            contentPadding: const EdgeInsets.all(AppConstants.mdSpacing),
+            leading: Container(
+              width: isSmallScreen ? 50 : 60,
+              height: isSmallScreen ? 50 : 60,
+              decoration: BoxDecoration(
+                color: AppTheme.backgroundLight,
+                borderRadius: BorderRadius.circular(AppConstants.mdRadius),
+                image: hasImage
+                    ? DecorationImage(
+                        image: NetworkImage(images!.first),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
+              ),
+              child: !hasImage
+                  ? Icon(
+                      IconStandards.getUIIcon('place'),
+                      color: AppTheme.primaryBlue,
+                    )
+                  : null,
             ),
-          ),
-          subtitle: Text(
-            destination['description'] as String,
-            style: TextStyle(
-              fontSize: isSmallScreen ? 11 : 12,
-              color: AppTheme.textSecondary,
+            title: Text(
+              destination['name'] as String,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: isSmallScreen ? 14 : 15,
+              ),
             ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          trailing: Text(
-            destination['budget'] as String,
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: isSmallScreen ? 11 : 12,
-              color: AppTheme.primaryBlue,
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 4),
+                Text(
+                  destination['description'] as String? ?? '',
+                  style: TextStyle(
+                    fontSize: isSmallScreen ? 12 : 13,
+                    color: AppTheme.textSecondary,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (destination['price_range'] != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    destination['price_range'] as String,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.primaryBlue,
+                    ),
+                  ),
+                ],
+              ],
             ),
+            trailing: destination['rating'] != null
+                ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(IconStandards.getUIIcon('star'), color: Colors.amber, size: 16),
+                      const SizedBox(width: 4),
+                      Text(
+                        destination['rating'].toString(),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: isSmallScreen ? 12 : 13,
+                        ),
+                      ),
+                    ],
+                  )
+                : null,
           ),
         );
       },

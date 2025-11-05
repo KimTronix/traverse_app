@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "/Users/M1/Documents/PROJECTS/flutter/traverse_flutter/linux/flutter"
+    "cmake.sourceDirectory": "/Users/M1/Documents/PROJECTS/flutter/traverse_flutter/linux/flutter",
+    "postman.settings.dotenv-detection-notification-visibility": false
 }

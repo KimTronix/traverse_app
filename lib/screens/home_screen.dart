@@ -247,7 +247,12 @@ class _HomeScreenState extends State<HomeScreen>
           Positioned(
             bottom: 80,
             right: 0,
-            child: const TAIChatBubble(),
+            child:  AnimatedFAB(
+              onPressed: () => context.go('/traverse-ai'),
+              icon: Icons.smart_toy,
+              tooltip: 'Create Post',
+              isScrolled: _isScrolled,
+            ),
           ),
           // Create Post FAB - at the bottom
           Positioned(
@@ -269,14 +274,8 @@ class _HomeScreenState extends State<HomeScreen>
   Widget _buildHeader(AuthProvider authProvider, bool isSmallScreen) {
     return Container(
       padding: EdgeInsets.all(isSmallScreen ? AppConstants.smSpacing : AppConstants.mdSpacing),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(
-          bottom: BorderSide(
-            color: AppTheme.borderLight,
-            width: 1,
-          ),
-        ),
       ),
       child: Row(
         children: [
@@ -341,6 +340,7 @@ class _HomeScreenState extends State<HomeScreen>
             onPressed: () => NavigationService.navigateToNotifications(context),
             icon: IconStandards.getActionIcon('notifications'),
             size: isSmallScreen ? 20 : 24,
+             color: AppTheme.primaryBlue,
           ),
 
           const SizedBox(width: AppConstants.smSpacing),
@@ -350,7 +350,7 @@ class _HomeScreenState extends State<HomeScreen>
             
             child: CustomIconButton(
               onPressed: () => context.go('/traverse-ai'),
-              icon: Icons.psychology,
+             icon: Icons.smart_toy,
               size: isSmallScreen ? 20 : 24,
               color: AppTheme.primaryBlue,
             ),
@@ -363,6 +363,7 @@ class _HomeScreenState extends State<HomeScreen>
             onPressed: () => NavigationService.navigateToWallet(context),
             icon: IconStandards.getUIIcon('wallet_outlined'),
             size: isSmallScreen ? 20 : 24,
+             color: AppTheme.primaryBlue,
           ),
           
           const SizedBox(width: AppConstants.smSpacing),
@@ -591,14 +592,8 @@ class _HomeScreenState extends State<HomeScreen>
     return Container(
       height: cardHeight + (verticalPadding * 2),
       padding: EdgeInsets.symmetric(vertical: verticalPadding),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(
-          bottom: BorderSide(
-            color: AppTheme.borderLight,
-            width: 1,
-          ),
-        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -838,14 +833,8 @@ class _HomeScreenState extends State<HomeScreen>
     return Container(
       height: storyHeight,
       padding: EdgeInsets.symmetric(vertical: verticalPadding),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(
-          bottom: BorderSide(
-            color: AppTheme.borderLight,
-            width: 1,
-          ),
-        ),
       ),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
@@ -889,17 +878,11 @@ class _HomeScreenState extends State<HomeScreen>
       final bDate = DateTime.tryParse(b['created_at']?.toString() ?? '') ?? DateTime.now();
       return bDate.compareTo(aDate);
     });
-    
+
     return Container(
       padding: EdgeInsets.symmetric(vertical: verticalPadding),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(
-          bottom: BorderSide(
-            color: AppTheme.borderLight,
-            width: 1,
-          ),
-        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
