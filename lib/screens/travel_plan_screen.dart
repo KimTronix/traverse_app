@@ -58,10 +58,12 @@ class _TravelPlanScreenState extends State<TravelPlanScreen> with SingleTickerPr
 
   Future<void> _loadDestinations() async {
     try {
-      final attractions = await _attractionsService.getApprovedAttractions();
+      final attractions = await _attractionsService.getAllAttractions();
       setState(() {
         _destinations = attractions.where((a) =>
-          a['category'] != 'hotel' && a['category'] != 'transport'
+          a['status'] == 'approved' &&
+          a['category'] != 'hotel' &&
+          a['category'] != 'transport'
         ).toList();
         _isLoadingDestinations = false;
       });
@@ -74,7 +76,7 @@ class _TravelPlanScreenState extends State<TravelPlanScreen> with SingleTickerPr
     try {
       final hotels = await _attractionsService.getAttractionsByCategory('hotel');
       setState(() {
-        _hotels = hotels;
+        _hotels = hotels.where((h) => h['status'] == 'approved').toList();
         _isLoadingHotels = false;
       });
     } catch (e) {
@@ -86,7 +88,7 @@ class _TravelPlanScreenState extends State<TravelPlanScreen> with SingleTickerPr
     try {
       final transports = await _attractionsService.getAttractionsByCategory('transport');
       setState(() {
-        _transports = transports;
+        _transports = transports.where((t) => t['status'] == 'approved').toList();
         _isLoadingTransports = false;
       });
     } catch (e) {
@@ -678,53 +680,127 @@ class _TravelPlanScreenState extends State<TravelPlanScreen> with SingleTickerPr
   }
 
   Widget _buildHotelsTab(bool isSmallScreen) {
-    final hotels = [
-      {'name': 'Luxury Resort', 'price': '\$200/night', 'rating': '4.8'},
-      {'name': 'Boutique Hotel', 'price': '\$150/night', 'rating': '4.5'},
-      {'name': 'Budget Inn', 'price': '\$80/night', 'rating': '4.2'},
-    ];
+    if (_isLoadingHotels) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_hotels.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              IconStandards.getUIIcon('hotel'),
+              size: 64,
+              color: Colors.grey[400],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No hotels available',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[600],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     return ListView.builder(
       padding: EdgeInsets.all(isSmallScreen ? AppConstants.smSpacing : AppConstants.mdSpacing),
-      itemCount: hotels.length,
+      itemCount: _hotels.length,
       itemBuilder: (context, index) {
-        final hotel = hotels[index];
-        return ListTile(
-          leading: Container(
-            width: isSmallScreen ? 40 : 48,
-            height: isSmallScreen ? 40 : 48,
-            decoration: BoxDecoration(
-              color: AppTheme.backgroundLight,
-              borderRadius: BorderRadius.circular(AppConstants.mdRadius),
-            ),
-            child: Icon(IconStandards.getUIIcon('hotel'), color: AppTheme.primaryBlue),
+        final hotel = _hotels[index];
+        final images = hotel['images'] as List?;
+        final hasImage = images != null && images.isNotEmpty;
+        final entryFee = hotel['entry_fee'];
+        final currency = hotel['currency'] ?? 'USD';
+
+        return Container(
+          margin: const EdgeInsets.only(bottom: AppConstants.mdSpacing),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(AppConstants.mdRadius),
+            border: Border.all(color: AppTheme.borderLight),
           ),
-          title: Text(
-            hotel['name'] as String,
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: isSmallScreen ? 13 : 14,
-            ),
-          ),
-          subtitle: Text(
-            hotel['price'] as String,
-            style: TextStyle(
-              fontSize: isSmallScreen ? 11 : 12,
-              color: AppTheme.textSecondary,
-            ),
-          ),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(IconStandards.getUIIcon('star'), color: Colors.amber, size: 16),
-              Text(
-                hotel['rating'] as String,
-                style: TextStyle(
-                  fontSize: isSmallScreen ? 11 : 12,
-                  fontWeight: FontWeight.w600,
-                ),
+          child: ListTile(
+            contentPadding: const EdgeInsets.all(AppConstants.mdSpacing),
+            leading: Container(
+              width: isSmallScreen ? 50 : 60,
+              height: isSmallScreen ? 50 : 60,
+              decoration: BoxDecoration(
+                color: AppTheme.backgroundLight,
+                borderRadius: BorderRadius.circular(AppConstants.mdRadius),
+                image: hasImage
+                    ? DecorationImage(
+                        image: NetworkImage(images!.first),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
               ),
-            ],
+              child: !hasImage
+                  ? Icon(IconStandards.getUIIcon('hotel'), color: AppTheme.primaryBlue)
+                  : null,
+            ),
+            title: Text(
+              hotel['name'] as String,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: isSmallScreen ? 14 : 15,
+              ),
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 4),
+                if (hotel['location'] != null)
+                  Text(
+                    hotel['location'] as String,
+                    style: TextStyle(
+                      fontSize: isSmallScreen ? 11 : 12,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
+                if (entryFee != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    '$currency \$${entryFee}/night',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.primaryGreen,
+                    ),
+                  ),
+                ] else if (hotel['price_range'] != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    hotel['price_range'] as String,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.primaryGreen,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            trailing: hotel['rating'] != null && hotel['rating'] > 0
+                ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(IconStandards.getUIIcon('star'), color: Colors.amber, size: 16),
+                      const SizedBox(width: 4),
+                      Text(
+                        hotel['rating'].toString(),
+                        style: TextStyle(
+                          fontSize: isSmallScreen ? 12 : 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  )
+                : null,
           ),
         );
       },
@@ -732,51 +808,122 @@ class _TravelPlanScreenState extends State<TravelPlanScreen> with SingleTickerPr
   }
 
   Widget _buildTransportTab(bool isSmallScreen) {
-    final transport = [
-      {'name': 'Flight', 'price': '\$300', 'duration': '2h 30m'},
-      {'name': 'Train', 'price': '\$80', 'duration': '4h 15m'},
-      {'name': 'Bus', 'price': '\$40', 'duration': '6h 30m'},
-    ];
+    if (_isLoadingTransports) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_transports.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              IconStandards.getUIIcon('directions_bus'),
+              size: 64,
+              color: Colors.grey[400],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No transport options available',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[600],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     return ListView.builder(
       padding: EdgeInsets.all(isSmallScreen ? AppConstants.smSpacing : AppConstants.mdSpacing),
-      itemCount: transport.length,
+      itemCount: _transports.length,
       itemBuilder: (context, index) {
-        final option = transport[index];
-        return ListTile(
-          leading: Container(
-            width: isSmallScreen ? 40 : 48,
-            height: isSmallScreen ? 40 : 48,
-            decoration: BoxDecoration(
-              color: AppTheme.backgroundLight,
-              borderRadius: BorderRadius.circular(AppConstants.mdRadius),
-            ),
-            child: Icon(
-              index == 0 ? IconStandards.getUIIcon('flight') : index == 1 ? IconStandards.getUIIcon('train') : IconStandards.getUIIcon('directions_bus'),
-              color: AppTheme.primaryBlue,
-            ),
+        final option = _transports[index];
+        final entryFee = option['entry_fee'];
+        final currency = option['currency'] ?? 'USD';
+
+        return Container(
+          margin: const EdgeInsets.only(bottom: AppConstants.mdSpacing),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(AppConstants.mdRadius),
+            border: Border.all(color: AppTheme.borderLight),
           ),
-          title: Text(
-            option['name'] as String,
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: isSmallScreen ? 13 : 14,
+          child: ListTile(
+            contentPadding: const EdgeInsets.all(AppConstants.mdSpacing),
+            leading: Container(
+              width: isSmallScreen ? 50 : 60,
+              height: isSmallScreen ? 50 : 60,
+              decoration: BoxDecoration(
+                color: AppTheme.backgroundLight,
+                borderRadius: BorderRadius.circular(AppConstants.mdRadius),
+              ),
+              child: Icon(
+                IconStandards.getUIIcon('directions_bus'),
+                color: AppTheme.primaryBlue,
+              ),
             ),
-          ),
-          subtitle: Text(
-            option['duration'] as String,
-            style: TextStyle(
-              fontSize: isSmallScreen ? 11 : 12,
-              color: AppTheme.textSecondary,
+            title: Text(
+              option['name'] as String,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: isSmallScreen ? 14 : 15,
+              ),
             ),
-          ),
-          trailing: Text(
-            option['price'] as String,
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: isSmallScreen ? 11 : 12,
-              color: AppTheme.primaryBlue,
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 4),
+                if (option['description'] != null)
+                  Text(
+                    option['description'] as String,
+                    style: TextStyle(
+                      fontSize: isSmallScreen ? 11 : 12,
+                      color: AppTheme.textSecondary,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                if (entryFee != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    '$currency \$${entryFee}',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.primaryGreen,
+                    ),
+                  ),
+                ] else if (option['price_range'] != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    option['price_range'] as String,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.primaryGreen,
+                    ),
+                  ),
+                ],
+              ],
             ),
+            trailing: option['rating'] != null && option['rating'] > 0
+                ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(IconStandards.getUIIcon('star'), color: Colors.amber, size: 16),
+                      const SizedBox(width: 4),
+                      Text(
+                        option['rating'].toString(),
+                        style: TextStyle(
+                          fontSize: isSmallScreen ? 12 : 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  )
+                : null,
           ),
         );
       },
