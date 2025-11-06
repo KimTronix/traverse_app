@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/travel_provider.dart';
+import '../providers/auth_provider.dart';
 import '../services/attractions_service.dart';
+import '../services/trip_planning_service.dart';
 import '../utils/constants.dart';
 import '../utils/theme.dart';
 import '../utils/icon_standards.dart';
@@ -23,6 +25,7 @@ class _TravelPlanScreenState extends State<TravelPlanScreen> with SingleTickerPr
   late TabController _tabController;
   final _formKey = GlobalKey<FormState>();
   final AttractionsService _attractionsService = AttractionsService.instance;
+  final TripPlanningService _tripPlanningService = TripPlanningService();
 
   String _selectedDestination = '';
   DateTime? _startDate;
@@ -31,6 +34,7 @@ class _TravelPlanScreenState extends State<TravelPlanScreen> with SingleTickerPr
   String _budget = 'medium';
   List<String> _selectedActivities = [];
   String _travelStyle = 'Casual';
+  bool _isSaving = false;
 
   // Database data
   List<Map<String, dynamic>> _destinations = [];
@@ -943,20 +947,107 @@ class _TravelPlanScreenState extends State<TravelPlanScreen> with SingleTickerPr
         ),
       ),
       child: CustomButton(
-        onPressed: () {
-          // Handle generate itinerary
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Generating your personalized itinerary...'),
-              backgroundColor: AppTheme.primaryBlue,
-            ),
-          );
-        },
-        child: Text(
-          'Generate Itinerary',
-          style: TextStyle(fontSize: isSmallScreen ? 14 : 16),
-        ),
+        onPressed: _isSaving ? null : _generateItinerary,
+        child: _isSaving
+            ? const SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            : Text(
+                'Generate Itinerary',
+                style: TextStyle(fontSize: isSmallScreen ? 14 : 16),
+              ),
       ),
     );
+  }
+
+  Future<void> _generateItinerary() async {
+    // Validate form
+    if (_selectedDestination.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select a destination'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (_startDate == null || _endDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select travel dates'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final authProvider = context.read<AuthProvider>();
+    final userId = authProvider.userData?['id'];
+
+    if (userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please sign in to save your trip plan'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isSaving = true);
+
+    try {
+      // Calculate duration
+      final duration = _endDate!.difference(_startDate!).inDays;
+
+      // Create trip plan
+      final tripPlan = {
+        'destination': _selectedDestination,
+        'start_date': _startDate!.toIso8601String(),
+        'end_date': _endDate!.toIso8601String(),
+        'duration': '$duration days',
+        'travelers': _travelers,
+        'budget_range': _budget,
+        'travel_style': _travelStyle,
+        'activities': _selectedActivities,
+        'created_at': DateTime.now().toIso8601String(),
+      };
+
+      // Save to database
+      final savedPlan = await _tripPlanningService.saveTripPlan(tripPlan, userId);
+
+      if (savedPlan != null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Trip plan saved successfully!'),
+            backgroundColor: AppTheme.primaryGreen,
+          ),
+        );
+
+        // Navigate to related posts
+        context.go('/trip-posts/${Uri.encodeComponent(_selectedDestination)}');
+      } else if (mounted) {
+        throw Exception('Failed to save trip plan');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error saving trip plan: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
   }
 }

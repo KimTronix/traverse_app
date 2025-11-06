@@ -265,4 +265,55 @@ class TripPlanningService {
       return null;
     }
   }
+
+  /// Get all trip plans for a user
+  Future<List<Map<String, dynamic>>> getUserTripPlans(String userId) async {
+    try {
+      final response = await _supabaseService.client
+          .from('trip_plans')
+          .select('*')
+          .eq('user_id', userId)
+          .order('created_at', ascending: false);
+
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      Logger.error('Error fetching user trip plans: $e');
+      return [];
+    }
+  }
+
+  /// Get posts by destination/location
+  Future<List<Map<String, dynamic>>> getPostsByDestination(String destination) async {
+    try {
+      if (destination.isEmpty) return [];
+
+      final response = await _supabaseService.client
+          .from('posts')
+          .select('*')
+          .or('location.ilike.%$destination%,caption.ilike.%$destination%,tags.cs.{$destination}')
+          .order('created_at', ascending: false)
+          .limit(50);
+
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      Logger.error('Error fetching posts by destination: $e');
+      return [];
+    }
+  }
+
+  /// Delete a trip plan
+  Future<bool> deleteTripPlan(String planId) async {
+    try {
+      await _supabaseService.client
+          .from('trip_plans')
+          .delete()
+          .eq('id', planId);
+
+      Logger.info('Trip plan deleted successfully: $planId');
+      return true;
+    } catch (e) {
+      Logger.error('Error deleting trip plan: $e');
+      return false;
+    }
+  }
 }

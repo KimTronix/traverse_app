@@ -9,6 +9,8 @@ import 'utils/logger.dart';
 import 'screens/home_screen.dart';
 import 'screens/explore_screen.dart';
 import 'screens/travel_plan_screen.dart';
+import 'screens/my_trip_plans_screen.dart';
+import 'screens/trip_posts_feed_screen.dart';
 import 'screens/messages_screen.dart';
 import 'screens/wallet_screen.dart';
 import 'screens/profile_screen.dart';
@@ -152,6 +154,25 @@ final GoRouter _router = GoRouter(
         child: const TravelPlanScreen(),
         transitionType: PageTransitionType.fadeScale,
       ),
+    ),
+    GoRoute(
+      path: '/my-trip-plans',
+      pageBuilder: (context, state) => TraverseTransitionPage(
+        key: state.pageKey,
+        child: const MyTripPlansScreen(),
+        transitionType: PageTransitionType.fadeScale,
+      ),
+    ),
+    GoRoute(
+      path: '/trip-posts/:destination',
+      pageBuilder: (context, state) {
+        final destination = Uri.decodeComponent(state.pathParameters['destination']!);
+        return TraverseTransitionPage(
+          key: state.pageKey,
+          child: TripPostsFeedScreen(destination: destination),
+          transitionType: PageTransitionType.fadeScale,
+        );
+      },
     ),
     GoRoute(
       path: '/messages',
