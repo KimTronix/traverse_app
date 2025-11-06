@@ -246,11 +246,22 @@ class TripPlanningService {
   Future<Map<String, dynamic>?> saveTripPlan(Map<String, dynamic> tripPlan, String userId) async {
     try {
       final planData = {
-        ...tripPlan,
         'user_id': userId,
+        'destination': tripPlan['destination'],
+        'budget_range': tripPlan['budget_range'] ?? 'medium',
+        'duration': tripPlan['duration'] ?? '3-5 days',
+        'travel_style': tripPlan['travel_style'] ?? 'Casual',
+        'activities': tripPlan['activities'] ?? ['sightseeing'],
         'status': 'draft',
-        'updated_at': DateTime.now().toIso8601String(),
       };
+
+      // Add optional fields if present
+      if (tripPlan['start_date'] != null) planData['start_date'] = tripPlan['start_date'];
+      if (tripPlan['end_date'] != null) planData['end_date'] = tripPlan['end_date'];
+      if (tripPlan['travelers'] != null) planData['travelers'] = tripPlan['travelers'];
+      if (tripPlan['tags'] != null) planData['tags'] = tripPlan['tags'];
+
+      Logger.info('Saving trip plan with data: $planData');
 
       final response = await _supabaseService.client
           .from('trip_plans')
@@ -260,8 +271,9 @@ class TripPlanningService {
 
       Logger.info('Trip plan saved successfully: ${response['id']}');
       return response;
-    } catch (e) {
+    } catch (e, stackTrace) {
       Logger.error('Error saving trip plan: $e');
+      Logger.error('Stack trace: $stackTrace');
       return null;
     }
   }

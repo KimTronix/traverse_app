@@ -217,7 +217,7 @@ class _HomeScreenState extends State<HomeScreen>
                                 ),
                               ),
                               TextButton(
-                                onPressed: () => context.go('/explore'),
+                                onPressed: () => context.go('/posts-list'),
                                 child: Text(
                                   'View All',
                                   style: TextStyle(
@@ -615,7 +615,7 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
                 TextButton(
                   onPressed: () {
-                    context.go('/explore?filter=places');
+                    context.go('/places-list');
                   },
                   child: Text(
                     'See All',
@@ -904,7 +904,7 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
                 TextButton(
                   onPressed: () {
-                    context.go('/explore?filter=events');
+                    context.go('/events-list');
                   },
                   child: Text(
                     'View All Events',

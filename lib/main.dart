@@ -11,6 +11,9 @@ import 'screens/explore_screen.dart';
 import 'screens/travel_plan_screen.dart';
 import 'screens/my_trip_plans_screen.dart';
 import 'screens/trip_posts_feed_screen.dart';
+import 'screens/events_list_screen.dart';
+import 'screens/places_list_screen.dart';
+import 'screens/posts_list_screen.dart';
 import 'screens/messages_screen.dart';
 import 'screens/wallet_screen.dart';
 import 'screens/profile_screen.dart';
@@ -173,6 +176,30 @@ final GoRouter _router = GoRouter(
           transitionType: PageTransitionType.fadeScale,
         );
       },
+    ),
+    GoRoute(
+      path: '/events-list',
+      pageBuilder: (context, state) => TraverseTransitionPage(
+        key: state.pageKey,
+        child: const EventsListScreen(),
+        transitionType: PageTransitionType.fadeScale,
+      ),
+    ),
+    GoRoute(
+      path: '/places-list',
+      pageBuilder: (context, state) => TraverseTransitionPage(
+        key: state.pageKey,
+        child: const PlacesListScreen(),
+        transitionType: PageTransitionType.fadeScale,
+      ),
+    ),
+    GoRoute(
+      path: '/posts-list',
+      pageBuilder: (context, state) => TraverseTransitionPage(
+        key: state.pageKey,
+        child: const PostsListScreen(),
+        transitionType: PageTransitionType.fadeScale,
+      ),
     ),
     GoRoute(
       path: '/messages',

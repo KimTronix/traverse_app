@@ -1006,17 +1006,16 @@ class _TravelPlanScreenState extends State<TravelPlanScreen> with SingleTickerPr
       // Calculate duration
       final duration = _endDate!.difference(_startDate!).inDays;
 
-      // Create trip plan
+      // Create trip plan - simplified structure for database
       final tripPlan = {
         'destination': _selectedDestination,
+        'budget_range': _budget,
+        'duration': '$duration days',
+        'travel_style': _travelStyle,
+        'activities': _selectedActivities.isEmpty ? ['sightseeing'] : _selectedActivities,
         'start_date': _startDate!.toIso8601String(),
         'end_date': _endDate!.toIso8601String(),
-        'duration': '$duration days',
         'travelers': _travelers,
-        'budget_range': _budget,
-        'travel_style': _travelStyle,
-        'activities': _selectedActivities,
-        'created_at': DateTime.now().toIso8601String(),
       };
 
       // Save to database
