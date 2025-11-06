@@ -39,6 +39,7 @@ import 'providers/auth_provider.dart';
 import 'providers/travel_provider.dart';
 import 'screens/traverse_ai_screen.dart';
 import 'screens/create_post_screen.dart';
+import 'screens/create_story_screen.dart';
 import 'pages/real_time_demo_page.dart';
 import 'providers/ui_provider.dart';
 import 'providers/booking_provider.dart';
@@ -335,6 +336,10 @@ final GoRouter _router = GoRouter(
           GoRoute(
             path: '/create-post',
             builder: (context, state) => const CreatePostScreen(),
+          ),
+          GoRoute(
+            path: '/create-story',
+            builder: (context, state) => const CreateStoryScreen(),
           ),
           GoRoute(
             path: '/admin',

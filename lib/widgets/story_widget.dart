@@ -17,13 +17,17 @@ class StoryWidget extends StatelessWidget {
     // Handle both boolean and integer values for hasStory and isAdd
     final hasStoryValue = story['hasStory'];
     final isAddValue = story['isAdd'];
-    
+
     final hasStory = hasStoryValue is bool ? hasStoryValue : (hasStoryValue as int?) == 1;
     final isAdd = isAddValue is bool ? isAddValue : (isAddValue as int?) == 1;
-    
-    final userId = story['userId'] as int?;
-    final avatar = story['avatar'] as String? ?? 'assets/images/travel-app-mockup.png';
-    final user = story['user'] as String? ?? 'User $userId';
+
+    // Handle database structure with nested users object
+    final users = story['users'] as Map<String, dynamic>?;
+    final userId = story['userId'] ?? story['user_id'];
+    final userAvatar = users?['avatar_url'] ?? story['avatar'];
+    final storyMedia = story['media_url'];
+    final avatar = storyMedia ?? userAvatar ?? 'assets/images/travel-app-mockup.png';
+    final user = users?['full_name'] ?? users?['username'] ?? story['user'] ?? 'User $userId';
 
     // Get screen dimensions for responsive design
     final screenWidth = MediaQuery.of(context).size.width;
@@ -52,14 +56,23 @@ class StoryWidget extends StatelessWidget {
           Colors.black.withValues(alpha: 0.6),
             ],
           ),
-          image: DecorationImage(
-            image: AssetImage(avatar),
-            fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(
-              Colors.black.withValues(alpha: 0.3),
-              BlendMode.darken,
-            ),
-          ),
+          image: avatar.startsWith('http')
+              ? DecorationImage(
+                  image: NetworkImage(avatar),
+                  fit: BoxFit.cover,
+                  colorFilter: ColorFilter.mode(
+                    Colors.black.withValues(alpha: 0.3),
+                    BlendMode.darken,
+                  ),
+                )
+              : DecorationImage(
+                  image: AssetImage(avatar),
+                  fit: BoxFit.cover,
+                  colorFilter: ColorFilter.mode(
+                    Colors.black.withValues(alpha: 0.3),
+                    BlendMode.darken,
+                  ),
+                ),
           border: hasStory
               ? Border.all(
                   color: AppTheme.primaryBlue,
@@ -117,10 +130,17 @@ class StoryWidget extends StatelessWidget {
                         color: Colors.white,
                         width: 2,
                       ),
-                      image: DecorationImage(
-                        image: AssetImage(avatar),
-                        fit: BoxFit.cover,
-                      ),
+                      image: userAvatar != null && userAvatar.startsWith('http')
+                          ? DecorationImage(
+                              image: NetworkImage(userAvatar),
+                              fit: BoxFit.cover,
+                            )
+                          : (userAvatar != null
+                              ? DecorationImage(
+                                  image: AssetImage(userAvatar),
+                                  fit: BoxFit.cover,
+                                )
+                              : null),
                     ),
                     child: isAdd
                         ? Container(

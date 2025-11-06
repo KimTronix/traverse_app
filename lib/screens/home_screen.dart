@@ -460,10 +460,8 @@ class _HomeScreenState extends State<HomeScreen>
     
     return GestureDetector(
       onTap: () {
-        // Handle My Story tap - could open camera or story creation
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Add to your story')),
-        );
+        // Navigate to create story screen
+        context.go('/create-story');
       },
       child: Container(
         width: cardWidth,
