@@ -4,7 +4,7 @@ import '../services/trip_planning_service.dart';
 import '../utils/constants.dart';
 import '../utils/theme.dart';
 import '../utils/icon_standards.dart';
-import '../widgets/post_card.dart';
+import '../widgets/post_widget.dart';
 
 class TripPostsFeedScreen extends StatefulWidget {
   final String destination;
@@ -148,7 +148,19 @@ class _TripPostsFeedScreenState extends State<TripPostsFeedScreen> {
           final post = _posts[index - 1];
           return Padding(
             padding: const EdgeInsets.only(bottom: AppConstants.mdSpacing),
-            child: PostCard(post: post),
+            child: PostWidget(
+              post: post,
+              isLiked: false,
+              isSaved: false,
+              onLike: () {},
+              onSave: () {},
+              onComment: () {},
+              onShare: () {},
+              onPlanTrip: () {
+                // Navigate back to trip planning with this post
+                context.go('/travel-plan');
+              },
+            ),
           );
         },
       ),
