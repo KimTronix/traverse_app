@@ -340,7 +340,7 @@ class AuthProvider with ChangeNotifier {
         await _checkCurrentUser();
         return true;
       } else {
-        _errorMessage = 'Google sign in failed';
+        _errorMessage = 'Google sign in was cancelled';
         return false;
       }
     } catch (e) {
@@ -381,6 +381,88 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  // ADDITIONAL SOCIAL AUTHENTICATION METHODS
+
+  // Sign in with Facebook
+  Future<bool> signInWithFacebook() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final response = await AuthService.signInWithFacebook();
+      
+      if (response?.user != null) {
+        await _checkCurrentUser();
+        return true;
+      } else {
+        _errorMessage = 'Facebook sign in was cancelled';
+        return false;
+      }
+    } catch (e) {
+      _errorMessage = _getErrorMessage(e.toString());
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Sign in with Twitter
+  Future<bool> signInWithTwitter() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final response = await AuthService.signInWithTwitter();
+      
+      if (response?.user != null) {
+        await _checkCurrentUser();
+        return true;
+      } else {
+        _errorMessage = 'Twitter sign in was cancelled';
+        return false;
+      }
+    } catch (e) {
+      _errorMessage = _getErrorMessage(e.toString());
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Sign in with Apple
+  Future<bool> signInWithApple() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final response = await AuthService.signInWithApple();
+      
+      if (response?.user != null) {
+        await _checkCurrentUser();
+        return true;
+      } else {
+        _errorMessage = 'Apple sign in was cancelled';
+        return false;
+      }
+    } catch (e) {
+      _errorMessage = _getErrorMessage(e.toString());
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Get available social authentication methods
+  List<String> getAvailableSocialMethods() {
+    return AuthService.getAvailableSocialMethods();
+  }
+
   // Helper method to format error messages
   String _getErrorMessage(String error) {
     if (error.contains('Invalid login credentials')) {
@@ -403,6 +485,14 @@ class AuthProvider with ChangeNotifier {
       return 'Failed to create user profile. Please try again.';
     } else if (error.contains('connection')) {
       return 'Connection error. Please check your internet connection.';
+    } else if (error.contains('Google Sign In')) {
+      return 'Google sign in failed. Please try again.';
+    } else if (error.contains('Facebook')) {
+      return 'Facebook sign in failed. Please try again.';
+    } else if (error.contains('Twitter')) {
+      return 'Twitter sign in failed. Please try again.';
+    } else if (error.contains('Apple Sign In is only available on iOS')) {
+      return 'Apple Sign In is only available on iOS devices.';
     } else {
       return 'An error occurred. Please try again.';
     }

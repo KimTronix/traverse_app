@@ -383,6 +383,11 @@ class _SignInScreenState extends State<SignInScreen>
 
                     const SizedBox(height: AppConstants.lgSpacing),
 
+                    // Social Sign In Section
+                    _buildSocialSignInSection(),
+
+                    const SizedBox(height: AppConstants.lgSpacing),
+
                     // Sign Up Link
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -426,5 +431,200 @@ class _SignInScreenState extends State<SignInScreen>
         ),
       ),
     );
+  }
+
+  Widget _buildSocialSignInSection() {
+    return Column(
+      children: [
+        // Divider with "OR" text
+        Row(
+          children: [
+            const Expanded(child: Divider(color: AppTheme.borderLight)),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppConstants.mdSpacing),
+              child: Text(
+                'OR',
+                style: TextStyle(
+                  color: AppTheme.textSecondary,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            const Expanded(child: Divider(color: AppTheme.borderLight)),
+          ],
+        ),
+
+        const SizedBox(height: AppConstants.lgSpacing),
+
+        // Social Sign In Buttons
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _buildSocialButton(
+              'Google',
+              'assets/icons/google.png',
+              () => _signInWithGoogle(),
+            ),
+            _buildSocialButton(
+              'Facebook',
+              'assets/icons/facebook.png',
+              () => _signInWithFacebook(),
+            ),
+            if (Theme.of(context).platform == TargetPlatform.iOS)
+              _buildSocialButton(
+                'Apple',
+                'assets/icons/apple.png',
+                () => _signInWithApple(),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSocialButton(String name, String iconPath, VoidCallback onPressed) {
+    return GestureDetector(
+      onTap: _isLoading ? null : onPressed,
+      child: Container(
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(AppConstants.mdRadius),
+          border: Border.all(color: AppTheme.borderLight),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Center(
+          child: Image.asset(
+            iconPath,
+            width: 24,
+            height: 24,
+            errorBuilder: (context, error, stackTrace) {
+              // Fallback to text if image not found
+              return Text(
+                name[0],
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textPrimary,
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _signInWithGoogle() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final success = await authProvider.signInWithGoogle();
+
+      if (mounted) {
+        if (success) {
+          context.go(authProvider.getHomeRoute());
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(authProvider.errorMessage ?? 'Google sign in failed'),
+              backgroundColor: AppTheme.primaryRed,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: AppTheme.primaryRed,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _signInWithFacebook() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final success = await authProvider.signInWithFacebook();
+
+      if (mounted) {
+        if (success) {
+          context.go(authProvider.getHomeRoute());
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(authProvider.errorMessage ?? 'Facebook sign in failed'),
+              backgroundColor: AppTheme.primaryRed,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: AppTheme.primaryRed,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _signInWithApple() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final success = await authProvider.signInWithApple();
+
+      if (mounted) {
+        if (success) {
+          context.go(authProvider.getHomeRoute());
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(authProvider.errorMessage ?? 'Apple sign in failed'),
+              backgroundColor: AppTheme.primaryRed,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: AppTheme.primaryRed,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 }

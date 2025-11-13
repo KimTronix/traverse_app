@@ -463,6 +463,11 @@ class _SignUpScreenState extends State<SignUpScreen>
 
                     const SizedBox(height: AppConstants.lgSpacing),
 
+                    // Social Sign Up Section
+                    _buildSocialSignUpSection(),
+
+                    const SizedBox(height: AppConstants.lgSpacing),
+
                     // Login Link
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -496,5 +501,218 @@ class _SignUpScreenState extends State<SignUpScreen>
         ),
       ),
     );
+  }
+
+  Widget _buildSocialSignUpSection() {
+    return Column(
+      children: [
+        // Divider with "OR" text
+        Row(
+          children: [
+            const Expanded(child: Divider(color: AppTheme.borderLight)),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppConstants.mdSpacing),
+              child: Text(
+                'OR',
+                style: TextStyle(
+                  color: AppTheme.textSecondary,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            const Expanded(child: Divider(color: AppTheme.borderLight)),
+          ],
+        ),
+
+        const SizedBox(height: AppConstants.lgSpacing),
+
+        // Social Sign Up Buttons
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _buildSocialButton(
+              'Google',
+              'assets/icons/google.png',
+              () => _signUpWithGoogle(),
+            ),
+            _buildSocialButton(
+              'Facebook',
+              'assets/icons/facebook.png',
+              () => _signUpWithFacebook(),
+            ),
+            if (Theme.of(context).platform == TargetPlatform.iOS)
+              _buildSocialButton(
+                'Apple',
+                'assets/icons/apple.png',
+                () => _signUpWithApple(),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSocialButton(String name, String iconPath, VoidCallback onPressed) {
+    return GestureDetector(
+      onTap: _isLoading ? null : onPressed,
+      child: Container(
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(AppConstants.mdRadius),
+          border: Border.all(color: AppTheme.borderLight),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Center(
+          child: Image.asset(
+            iconPath,
+            width: 24,
+            height: 24,
+            errorBuilder: (context, error, stackTrace) {
+              // Fallback to text if image not found
+              return Text(
+                name[0],
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textPrimary,
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _signUpWithGoogle() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final success = await authProvider.signInWithGoogle();
+
+      if (mounted) {
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Account created successfully with Google!'),
+              backgroundColor: AppTheme.primaryGreen,
+            ),
+          );
+          context.go(authProvider.getHomeRoute());
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(authProvider.errorMessage ?? 'Google sign up failed'),
+              backgroundColor: AppTheme.primaryRed,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: AppTheme.primaryRed,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _signUpWithFacebook() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final success = await authProvider.signInWithFacebook();
+
+      if (mounted) {
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Account created successfully with Facebook!'),
+              backgroundColor: AppTheme.primaryGreen,
+            ),
+          );
+          context.go(authProvider.getHomeRoute());
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(authProvider.errorMessage ?? 'Facebook sign up failed'),
+              backgroundColor: AppTheme.primaryRed,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: AppTheme.primaryRed,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _signUpWithApple() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final success = await authProvider.signInWithApple();
+
+      if (mounted) {
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Account created successfully with Apple!'),
+              backgroundColor: AppTheme.primaryGreen,
+            ),
+          );
+          context.go(authProvider.getHomeRoute());
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(authProvider.errorMessage ?? 'Apple sign up failed'),
+              backgroundColor: AppTheme.primaryRed,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: AppTheme.primaryRed,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 }

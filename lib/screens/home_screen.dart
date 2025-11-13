@@ -5,12 +5,12 @@ import '../providers/auth_provider.dart';
 import '../providers/travel_provider.dart';
 import '../services/navigation_service.dart';
 import '../services/trip_planning_service.dart';
+import '../services/stories_service.dart';
 import '../utils/constants.dart';
 import '../utils/theme.dart';
 import '../utils/icon_standards.dart';
 import '../widgets/bottom_navigation.dart';
-import '../widgets/story_widget.dart';
-import '../widgets/story_detail_popup.dart';
+import '../screens/stories_screen.dart';
 import '../widgets/post_widget.dart';
 import '../widgets/place_detail_popup.dart';
 import '../widgets/animated_fab.dart';
@@ -834,28 +834,92 @@ class _HomeScreenState extends State<HomeScreen>
       decoration: const BoxDecoration(
         color: Colors.white,
       ),
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: isSmallScreen ? AppConstants.smSpacing : AppConstants.mdSpacing),
-        itemCount: travelProvider.stories.length + 1, // +1 for My Story
-        physics: const BouncingScrollPhysics(),
-        itemBuilder: (context, index) {
-          if (index == 0) {
-            // My Story card as first item
-            return _buildMyStoryWidget(travelProvider, isSmallScreen);
-          }
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Stories header
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: isSmallScreen ? AppConstants.smSpacing : AppConstants.mdSpacing,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Stories',
+                  style: TextStyle(
+                    fontSize: isVerySmallScreen ? 18 : 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => context.go('/stories'),
+                  child: Text(
+                    'View All',
+                    style: TextStyle(
+                      color: AppTheme.primaryBlue,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
           
-          final story = travelProvider.stories[index - 1]; // Adjust index for stories
-          return StoryWidget(
-            story: story,
-            onTap: () {
-              showDialog(
-                context: context,
-                builder: (context) => StoryDetailPopup(story: story),
-              );
-            },
-          );
-        },
+          // Stories list
+          Expanded(
+            child: FutureBuilder<List<Map<String, dynamic>>>(
+              future: StoriesService.instance.getActiveStories(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                
+                final stories = snapshot.data ?? [];
+                
+                // Group stories by user
+                final Map<String, List<Map<String, dynamic>>> groupedStories = {};
+                for (final story in stories) {
+                  final userId = story['user_id'] as String;
+                  if (!groupedStories.containsKey(userId)) {
+                    groupedStories[userId] = [];
+                  }
+                  groupedStories[userId]!.add(story);
+                }
+                
+                final storyGroups = groupedStories.entries.map((entry) {
+                  final userStories = entry.value;
+                  return {
+                    'user': userStories.first['users'],
+                    'stories': userStories,
+                    'latest_story': userStories.first,
+                  };
+                }).toList();
+                
+                return ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isSmallScreen ? AppConstants.smSpacing : AppConstants.mdSpacing,
+                  ),
+                  itemCount: storyGroups.length + 1, // +1 for My Story
+                  physics: const BouncingScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      // My Story card as first item
+                      return _buildMyStoryCard(isSmallScreen);
+                    }
+                    
+                    final storyGroup = storyGroups[index - 1];
+                    return _buildStoryCard(storyGroup, isSmallScreen);
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1645,6 +1709,199 @@ class _HomeScreenState extends State<HomeScreen>
     } catch (e) {
       return 'Recently';
     }
+  }
+
+  Widget _buildMyStoryCard(bool isSmallScreen) {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final currentUser = authProvider.userData;
+
+    return GestureDetector(
+      onTap: () => context.go('/stories'),
+      child: Container(
+        width: 80,
+        margin: const EdgeInsets.only(right: AppConstants.smSpacing),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppConstants.mdRadius),
+          border: Border.all(
+            color: AppTheme.primaryBlue,
+            width: 2,
+          ),
+          gradient: LinearGradient(
+            colors: [
+              AppTheme.primaryBlue.withValues(alpha: 0.1),
+              AppTheme.primaryPurple.withValues(alpha: 0.1),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircleAvatar(
+              radius: 20,
+              backgroundImage: currentUser?['avatar_url'] != null
+                  ? NetworkImage(currentUser!['avatar_url'])
+                  : null,
+              child: currentUser?['avatar_url'] == null
+                  ? Text(
+                      currentUser?['full_name']?[0] ?? 'U',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    )
+                  : null,
+            ),
+            const SizedBox(height: AppConstants.smSpacing),
+            const Icon(
+              Icons.add,
+              color: AppTheme.primaryBlue,
+              size: 16,
+            ),
+            const Text(
+              'Your Story',
+              style: TextStyle(
+                fontSize: 10,
+                color: AppTheme.primaryBlue,
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStoryCard(Map<String, dynamic> storyGroup, bool isSmallScreen) {
+    final user = storyGroup['user'] as Map<String, dynamic>;
+    final stories = storyGroup['stories'] as List<Map<String, dynamic>>;
+    final latestStory = storyGroup['latest_story'] as Map<String, dynamic>;
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => StoriesScreen(),
+            fullscreenDialog: true,
+          ),
+        );
+      },
+      child: Container(
+        width: 80,
+        margin: const EdgeInsets.only(right: AppConstants.smSpacing),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppConstants.mdRadius),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppConstants.mdRadius),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // Story background
+              Image.network(
+                latestStory['media_url'] ?? '',
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    color: AppTheme.primaryBlue.withValues(alpha: 0.2),
+                    child: const Icon(
+                      Icons.image_not_supported,
+                      color: AppTheme.textSecondary,
+                      size: 30,
+                    ),
+                  );
+                },
+              ),
+              
+              // Gradient overlay
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.7),
+                    ],
+                  ),
+                ),
+              ),
+              
+              // User avatar and info
+              Positioned(
+                bottom: 8,
+                left: 8,
+                right: 8,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircleAvatar(
+                      radius: 12,
+                      backgroundImage: user['avatar_url'] != null
+                          ? NetworkImage(user['avatar_url'])
+                          : null,
+                      child: user['avatar_url'] == null
+                          ? Text(
+                              user['full_name']?[0] ?? 'U',
+                              style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            )
+                          : null,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      user['username'] ?? user['full_name'] ?? 'Unknown',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              
+              // Story count indicator
+              if (stories.length > 1)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryBlue,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      '${stories.length}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 

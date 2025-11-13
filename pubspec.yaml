@@ -62,6 +62,9 @@ dependencies:
   # Authentication
   google_sign_in: ^6.2.1
   google_sign_in_web: ^0.12.4+2
+  flutter_facebook_auth: ^7.1.1
+  twitter_login: ^4.4.2
+  sign_in_with_apple: ^6.1.2
   
   # Animations
   lottie: ^3.1.2
@@ -95,6 +98,27 @@ dependencies:
   connectivity_plus: ^6.0.5
   iconsax: ^0.0.8
   flutter_secure_storage: ^9.2.4
+  
+  # Maps & Location
+  google_maps_flutter: ^2.9.0
+  google_maps_flutter_web: ^0.5.10
+  geocoding: ^3.0.0
+  
+  # Video & Camera
+  camera: ^0.11.0+2
+  video_player: ^2.9.1
+  chewie: ^1.8.5
+  
+  # Payment Integration
+  stripe_payment: ^1.1.4
+  in_app_purchase: ^3.2.0
+  
+  # Real-time Features
+  web_socket_channel: ^3.0.1
+  
+  # Additional Social Features
+  url_launcher: ^6.3.1
+  flutter_mentions: ^2.0.2
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1

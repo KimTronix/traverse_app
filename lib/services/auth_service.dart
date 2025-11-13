@@ -1,7 +1,11 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:twitter_login/twitter_login.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'dart:io';
 import '../config/supabase_config.dart';
 import '../utils/logger.dart';
 import 'verification_service.dart';
@@ -757,6 +761,146 @@ class AuthService {
     } catch (e) {
       Logger.error('Error updating user active status as admin: $e');
       return false;
+    }
+  }
+
+  // ADDITIONAL SOCIAL AUTHENTICATION METHODS
+
+  // Sign in with Facebook
+  static Future<AuthResponse?> signInWithFacebook() async {
+    try {
+      Logger.info('Attempting Facebook Sign In');
+      
+      final LoginResult result = await FacebookAuth.instance.login();
+      
+      if (result.status == LoginStatus.success) {
+        final AccessToken accessToken = result.accessToken!;
+        
+        final response = await _client.auth.signInWithIdToken(
+          provider: OAuthProvider.facebook,
+          idToken: accessToken.tokenString,
+        );
+
+        if (response.user != null) {
+          Logger.info('Successfully signed in with Facebook: ${response.user!.email}');
+          await _syncUserToDatabase(response.user!);
+          await VerificationService.autoVerifyEmail();
+        }
+
+        return response;
+      } else {
+        Logger.info('Facebook Sign In cancelled or failed: ${result.status}');
+        return null;
+      }
+    } catch (e) {
+      Logger.error('Facebook Sign In error: $e');
+      rethrow;
+    }
+  }
+
+  // Sign in with Twitter
+  static Future<AuthResponse?> signInWithTwitter() async {
+    try {
+      Logger.info('Attempting Twitter Sign In');
+      
+      // Note: You'll need to configure Twitter API keys in your environment
+      final twitterLogin = TwitterLogin(
+        apiKey: 'YOUR_TWITTER_API_KEY', // Add to .env file
+        apiSecretKey: 'YOUR_TWITTER_API_SECRET', // Add to .env file
+        redirectURI: 'traverse://twitter-callback',
+      );
+      
+      final authResult = await twitterLogin.login();
+      
+      if (authResult.status == TwitterLoginStatus.loggedIn) {
+        final response = await _client.auth.signInWithIdToken(
+          provider: OAuthProvider.twitter,
+          idToken: authResult.authToken!,
+          accessToken: authResult.authTokenSecret!,
+        );
+
+        if (response.user != null) {
+          Logger.info('Successfully signed in with Twitter: ${response.user!.email}');
+          await _syncUserToDatabase(response.user!);
+          await VerificationService.autoVerifyEmail();
+        }
+
+        return response;
+      } else {
+        Logger.info('Twitter Sign In cancelled or failed: ${authResult.status}');
+        return null;
+      }
+    } catch (e) {
+      Logger.error('Twitter Sign In error: $e');
+      rethrow;
+    }
+  }
+
+  // Sign in with Apple (iOS only)
+  static Future<AuthResponse?> signInWithApple() async {
+    try {
+      if (!Platform.isIOS) {
+        throw Exception('Apple Sign In is only available on iOS');
+      }
+      
+      Logger.info('Attempting Apple Sign In');
+      
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+
+      final response = await _client.auth.signInWithIdToken(
+        provider: OAuthProvider.apple,
+        idToken: credential.identityToken!,
+      );
+
+      if (response.user != null) {
+        Logger.info('Successfully signed in with Apple: ${response.user!.email}');
+        await _syncUserToDatabase(response.user!);
+        await VerificationService.autoVerifyEmail();
+      }
+
+      return response;
+    } catch (e) {
+      Logger.error('Apple Sign In error: $e');
+      rethrow;
+    }
+  }
+
+  // Get available social sign-in methods based on platform
+  static List<String> getAvailableSocialMethods() {
+    List<String> methods = ['google', 'facebook'];
+    
+    if (Platform.isIOS) {
+      methods.add('apple');
+    }
+    
+    // Twitter is available on all platforms but requires API keys
+    methods.add('twitter');
+    
+    return methods;
+  }
+
+  // Sign out from all social providers
+  static Future<void> signOutFromAllProviders() async {
+    try {
+      // Sign out from Supabase
+      await _client.auth.signOut();
+      
+      // Sign out from Google
+      if (await _googleSignIn.isSignedIn()) {
+        await _googleSignIn.signOut();
+      }
+      
+      // Sign out from Facebook
+      await FacebookAuth.instance.logOut();
+      
+      Logger.info('Signed out from all providers');
+    } catch (e) {
+      Logger.error('Error signing out from providers: $e');
     }
   }
 }
