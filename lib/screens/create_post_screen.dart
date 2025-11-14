@@ -6,7 +6,6 @@ import '../providers/travel_provider.dart';
 import '../providers/auth_provider.dart';
 import '../services/auth_service.dart';
 import '../services/upload_service.dart';
-import '../services/verification_service.dart';
 import '../utils/constants.dart';
 import '../utils/theme.dart';
 import '../utils/icon_standards.dart';
@@ -98,13 +97,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         throw Exception('User not authenticated');
       }
 
-      // Check if user is verified for posting
-      if (user != null && user.id.isNotEmpty) {
-        final canPost = await VerificationService.canUserPost();
-        if (!canPost) {
-          throw Exception('Account verification required to create posts. Please verify your email address.');
-        }
-      }
+      // Verification check removed - all users can post
 
       String userId;
       List<String> imageUrls = [];

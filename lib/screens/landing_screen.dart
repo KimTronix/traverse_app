@@ -665,8 +665,6 @@ class _LandingScreenState extends State<LandingScreen>
             Expanded(child: _buildSocialButton('Google', IconStandards.getSocialMediaIcon('google'))),
             SizedBox(width: isSmallScreen ? AppConstants.smSpacing : AppConstants.mdSpacing),
             Expanded(child: _buildSocialButton('Facebook', IconStandards.getSocialMediaIcon('facebook'))),
-            SizedBox(width: isSmallScreen ? AppConstants.smSpacing : AppConstants.mdSpacing),
-            Expanded(child: _buildSocialButton('Twitter', IconStandards.getSocialMediaIcon('twitter'))),
           ],
         ),
       ],

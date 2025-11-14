@@ -1,7 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../utils/logger.dart';
 import 'auth_service.dart';
-import 'verification_service.dart';
 
 class AiChatService {
   static final SupabaseClient _client = Supabase.instance.client;
@@ -14,10 +13,7 @@ class AiChatService {
         throw Exception('User not authenticated');
       }
 
-      // Check if user is verified and can save chats
-      if (!await VerificationService.canUserSaveChats()) {
-        throw Exception('User must be verified to save chat sessions');
-      }
+      // Verification check removed - all users can save chats
 
       final sessionData = {
         'user_id': user.id,
@@ -47,10 +43,7 @@ class AiChatService {
       final user = AuthService.currentUser;
       if (user == null) return [];
 
-      // Check if user is verified
-      if (!await VerificationService.canUserSaveChats()) {
-        return [];
-      }
+      // Verification check removed - all users can access chats
 
       final response = await _client
           .from('ai_chat_sessions')
@@ -80,10 +73,7 @@ class AiChatService {
         throw Exception('User not authenticated');
       }
 
-      // Check if user is verified
-      if (!await VerificationService.canUserSaveChats()) {
-        throw Exception('User must be verified to save messages');
-      }
+      // Verification check removed - all users can save messages
 
       // Verify session belongs to user
       final session = await _client
@@ -131,10 +121,7 @@ class AiChatService {
       final user = AuthService.currentUser;
       if (user == null) return [];
 
-      // Check if user is verified
-      if (!await VerificationService.canUserSaveChats()) {
-        return [];
-      }
+      // Verification check removed - all users can access chats
 
       // Verify session belongs to user
       final session = await _client
@@ -168,10 +155,7 @@ class AiChatService {
       final user = AuthService.currentUser;
       if (user == null) return false;
 
-      // Check if user is verified
-      if (!await VerificationService.canUserSaveChats()) {
-        return false;
-      }
+      // Verification check removed - all users can perform this action
 
       await _client
           .from('ai_chat_sessions')
@@ -192,10 +176,7 @@ class AiChatService {
       final user = AuthService.currentUser;
       if (user == null) return false;
 
-      // Check if user is verified
-      if (!await VerificationService.canUserSaveChats()) {
-        return false;
-      }
+      // Verification check removed - all users can perform this action
 
       await _client
           .from('ai_chat_sessions')
@@ -216,10 +197,7 @@ class AiChatService {
       final user = AuthService.currentUser;
       if (user == null) return false;
 
-      // Check if user is verified
-      if (!await VerificationService.canUserSaveChats()) {
-        return false;
-      }
+      // Verification check removed - all users can perform this action
 
       // Verify session belongs to user
       final session = await _client
@@ -264,10 +242,7 @@ class AiChatService {
       final user = AuthService.currentUser;
       if (user == null) return null;
 
-      // Check if user is verified
-      if (!await VerificationService.canUserSaveChats()) {
-        throw Exception('User must be verified to save conversations');
-      }
+      // Verification check removed - all users can save conversations
 
       // Create session
       final sessionId = await createChatSession(sessionName: sessionName);
@@ -296,10 +271,7 @@ class AiChatService {
       final user = AuthService.currentUser;
       if (user == null) return [];
 
-      // Check if user is verified
-      if (!await VerificationService.canUserSaveChats()) {
-        return [];
-      }
+      // Verification check removed - all users can access chats
 
       final response = await _client
           .from('ai_chat_sessions')
@@ -321,10 +293,7 @@ class AiChatService {
       final user = AuthService.currentUser;
       if (user == null) return false;
 
-      // Check if user is verified
-      if (!await VerificationService.canUserSaveChats()) {
-        return false;
-      }
+      // Verification check removed - all users can perform this action
 
       await _client
           .from('ai_chat_sessions')
@@ -345,10 +314,7 @@ class AiChatService {
       final user = AuthService.currentUser;
       if (user == null) return {};
 
-      // Check if user is verified
-      if (!await VerificationService.canUserSaveChats()) {
-        return {};
-      }
+      // Verification check removed - all users can access statistics
 
       final sessions = await _client
           .from('ai_chat_sessions')

@@ -7,24 +7,13 @@ class VerificationService {
   static final SupabaseClient _client = Supabase.instance.client;
 
   // Check if user is verified for a specific type
+  // VERIFICATION DISABLED - Always returns true
   static Future<bool> isUserVerified({
     String? userId,
     String verificationType = 'email',
   }) async {
-    try {
-      final String targetUserId = userId ?? AuthService.currentUser?.id ?? '';
-      if (targetUserId.isEmpty) return false;
-
-      final response = await _client.rpc('is_user_verified', params: {
-        'user_uuid': targetUserId,
-        'verification_type': verificationType,
-      });
-
-      return response == true;
-    } catch (e) {
-      Logger.error('Error checking user verification: $e');
-      return false;
-    }
+    // Verification disabled - all users are considered verified
+    return true;
   }
 
   // Get comprehensive verification status for user
@@ -44,28 +33,22 @@ class VerificationService {
     }
   }
 
-  // Check if user can post (requires email verification)
+  // Check if user can post (verification disabled)
   static Future<bool> canUserPost({String? userId}) async {
-    return await isUserVerified(
-      userId: userId,
-      verificationType: 'email',
-    );
+    // Verification disabled - all users can post
+    return true;
   }
 
-  // Check if user can access AI features (requires email verification)
+  // Check if user can access AI features (verification disabled)
   static Future<bool> canUserAccessAI({String? userId}) async {
-    return await isUserVerified(
-      userId: userId,
-      verificationType: 'email',
-    );
+    // Verification disabled - all users can access AI
+    return true;
   }
 
-  // Check if user can save chats (requires email verification)
+  // Check if user can save chats (verification disabled)
   static Future<bool> canUserSaveChats({String? userId}) async {
-    return await isUserVerified(
-      userId: userId,
-      verificationType: 'email',
-    );
+    // Verification disabled - all users can save chats
+    return true;
   }
 
   // Request verification for a specific type

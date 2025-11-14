@@ -63,7 +63,6 @@ dependencies:
   google_sign_in: ^6.2.1
   google_sign_in_web: ^0.12.4+2
   flutter_facebook_auth: ^7.1.1
-  twitter_login: ^4.4.2
   sign_in_with_apple: ^6.1.2
   
   # Animations
@@ -110,7 +109,7 @@ dependencies:
   chewie: ^1.8.5
   
   # Payment Integration
-  stripe_payment: ^1.1.4
+  flutter_stripe: ^10.1.1
   in_app_purchase: ^3.2.0
   
   # Real-time Features
@@ -118,7 +117,7 @@ dependencies:
   
   # Additional Social Features
   url_launcher: ^6.3.1
-  flutter_mentions: ^2.0.2
+  flutter_mentions: ^2.0.1
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1

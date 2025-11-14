@@ -57,7 +57,6 @@ class IconStandards {
   static final Map<String, IconData> socialMediaIcons = {
   'google': Iconsax.grid_1,
   'facebook': Iconsax.book,
-  'twitter': Iconsax.timer,
   'instagram': Iconsax.instagram,
   'linkedin': Iconsax.link,
   };

@@ -408,30 +408,6 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // Sign in with Twitter
-  Future<bool> signInWithTwitter() async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-
-    try {
-      final response = await AuthService.signInWithTwitter();
-      
-      if (response?.user != null) {
-        await _checkCurrentUser();
-        return true;
-      } else {
-        _errorMessage = 'Twitter sign in was cancelled';
-        return false;
-      }
-    } catch (e) {
-      _errorMessage = _getErrorMessage(e.toString());
-      return false;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
 
   // Sign in with Apple
   Future<bool> signInWithApple() async {
@@ -489,8 +465,6 @@ class AuthProvider with ChangeNotifier {
       return 'Google sign in failed. Please try again.';
     } else if (error.contains('Facebook')) {
       return 'Facebook sign in failed. Please try again.';
-    } else if (error.contains('Twitter')) {
-      return 'Twitter sign in failed. Please try again.';
     } else if (error.contains('Apple Sign In is only available on iOS')) {
       return 'Apple Sign In is only available on iOS devices.';
     } else {

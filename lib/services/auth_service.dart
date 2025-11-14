@@ -1,7 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
-import 'package:twitter_login/twitter_login.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -798,43 +797,6 @@ class AuthService {
     }
   }
 
-  // Sign in with Twitter
-  static Future<AuthResponse?> signInWithTwitter() async {
-    try {
-      Logger.info('Attempting Twitter Sign In');
-      
-      // Note: You'll need to configure Twitter API keys in your environment
-      final twitterLogin = TwitterLogin(
-        apiKey: 'YOUR_TWITTER_API_KEY', // Add to .env file
-        apiSecretKey: 'YOUR_TWITTER_API_SECRET', // Add to .env file
-        redirectURI: 'traverse://twitter-callback',
-      );
-      
-      final authResult = await twitterLogin.login();
-      
-      if (authResult.status == TwitterLoginStatus.loggedIn) {
-        final response = await _client.auth.signInWithIdToken(
-          provider: OAuthProvider.twitter,
-          idToken: authResult.authToken!,
-          accessToken: authResult.authTokenSecret!,
-        );
-
-        if (response.user != null) {
-          Logger.info('Successfully signed in with Twitter: ${response.user!.email}');
-          await _syncUserToDatabase(response.user!);
-          await VerificationService.autoVerifyEmail();
-        }
-
-        return response;
-      } else {
-        Logger.info('Twitter Sign In cancelled or failed: ${authResult.status}');
-        return null;
-      }
-    } catch (e) {
-      Logger.error('Twitter Sign In error: $e');
-      rethrow;
-    }
-  }
 
   // Sign in with Apple (iOS only)
   static Future<AuthResponse?> signInWithApple() async {
@@ -877,9 +839,6 @@ class AuthService {
     if (Platform.isIOS) {
       methods.add('apple');
     }
-    
-    // Twitter is available on all platforms but requires API keys
-    methods.add('twitter');
     
     return methods;
   }

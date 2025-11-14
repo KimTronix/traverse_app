@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../services/openai_service.dart';
-import '../services/verification_service.dart';
 import '../services/ai_chat_service.dart';
 import '../utils/theme.dart';
 import '../utils/constants.dart';
@@ -27,9 +26,9 @@ class _TraverseAiScreenState extends State<TraverseAiScreen> {
   }
 
   Future<void> _checkVerificationStatus() async {
-    final canAccess = await VerificationService.canUserAccessAI();
+    // Verification removed - all users can access AI
     setState(() {
-      _isVerified = canAccess;
+      _isVerified = true;
     });
   }
 
@@ -37,16 +36,7 @@ class _TraverseAiScreenState extends State<TraverseAiScreen> {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
 
-    // Check verification before allowing AI access
-    if (!_isVerified) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Account verification required to access TraverseAI. Please verify your email address.'),
-          backgroundColor: AppTheme.primaryRed,
-        ),
-      );
-      return;
-    }
+    // Verification check removed - all users can access AI
 
     setState(() {
       _messages.add({'role': 'user', 'text': text});
@@ -65,11 +55,8 @@ class _TraverseAiScreenState extends State<TraverseAiScreen> {
         _isLoading = false;
       });
 
-      // Auto-save to session if user can save chats
-      final canSave = await VerificationService.canUserSaveChats();
-      if (canSave) {
-        await _autoSaveMessages();
-      }
+      // Auto-save to session - verification removed
+      await _autoSaveMessages();
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -116,16 +103,7 @@ class _TraverseAiScreenState extends State<TraverseAiScreen> {
   Future<void> _saveConversation() async {
     if (_messages.isEmpty) return;
 
-    final canSave = await VerificationService.canUserSaveChats();
-    if (!canSave) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Account verification required to save chats. Please verify your email address.'),
-          backgroundColor: AppTheme.primaryRed,
-        ),
-      );
-      return;
-    }
+    // Verification check removed - all users can save chats
 
     try {
       final sessionId = await AiChatService.saveConversation(

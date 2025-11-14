@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../services/stories_service.dart';
 import '../widgets/story_viewer.dart';
-import '../widgets/story_creator.dart';
 import '../utils/theme.dart';
 import '../utils/constants.dart';
 import '../utils/logger.dart';
@@ -394,12 +393,7 @@ class _StoriesScreenState extends State<StoriesScreen> {
   }
 
   void _showStoryCreator() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const StoryCreatorScreen(),
-        fullscreenDialog: true,
-      ),
-    ).then((_) {
+    Navigator.of(context).pushNamed('/create-story').then((_) {
       // Refresh stories after creating a new one
       _loadStories();
     });
