@@ -339,6 +339,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
 
                         ListTile(
+                          leading: Icon(IconStandards.getNavigationIcon('plan'), color: AppTheme.primaryGreen),
+                          title: const Text(
+                            'My Trip Plans',
+                            style: TextStyle(
+                              color: AppTheme.primaryGreen,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          subtitle: const Text('View and manage your travel plans'),
+                          trailing: Icon(IconStandards.getUIIcon('arrow_forward')),
+                          onTap: () {
+                            context.go('/my-trip-plans');
+                          },
+                        ),
+
+                        ListTile(
                           leading: Icon(IconStandards.getUIIcon('settings')),
                           title: const Text('Settings'),
                           trailing: Icon(IconStandards.getUIIcon('arrow_forward')),

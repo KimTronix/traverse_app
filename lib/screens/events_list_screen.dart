@@ -54,7 +54,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
         leading: IconButton(
           icon: Icon(IconStandards.getUIIcon('back')),
           color: Colors.white,
-          onPressed: () => context.pop(),
+          onPressed: () => context.go('/home'),
         ),
       ),
       body: Column(

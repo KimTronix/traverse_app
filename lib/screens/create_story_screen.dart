@@ -87,17 +87,22 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
     setState(() => _isUploading = true);
 
     try {
+      print('DEBUG: Starting story creation for user: $userId');
+      
       // Upload image to storage
+      print('DEBUG: Uploading image...');
       final mediaUrl = await _storiesService.uploadStoryMedia(
         userId: userId,
         imageFile: _selectedImage!,
       );
 
+      print('DEBUG: Upload result: $mediaUrl');
       if (mediaUrl == null) {
-        throw Exception('Failed to upload image');
+        throw Exception('Failed to upload image to storage');
       }
 
       // Create story in database
+      print('DEBUG: Creating story in database...');
       final story = await _storiesService.createStory(
         userId: userId,
         mediaUrl: mediaUrl,
@@ -110,6 +115,8 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
         mediaType: 'image',
         durationHours: 24,
       );
+      
+      print('DEBUG: Story creation result: $story');
 
       if (story != null && mounted) {
         // Reload stories in provider

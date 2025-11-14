@@ -54,7 +54,7 @@ class _PlacesListScreenState extends State<PlacesListScreen> {
         leading: IconButton(
           icon: Icon(IconStandards.getUIIcon('back')),
           color: Colors.white,
-          onPressed: () => context.pop(),
+          onPressed: () => context.go('/home'),
         ),
       ),
       body: Column(
