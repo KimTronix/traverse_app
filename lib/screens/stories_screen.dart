@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../providers/auth_provider.dart';
 import '../services/stories_service.dart';
 import '../widgets/story_viewer.dart';
@@ -393,7 +394,7 @@ class _StoriesScreenState extends State<StoriesScreen> {
   }
 
   void _showStoryCreator() {
-    Navigator.of(context).pushNamed('/create-story').then((_) {
+    context.push('/create-story').then((_) {
       // Refresh stories after creating a new one
       _loadStories();
     });
