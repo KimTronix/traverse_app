@@ -45,37 +45,30 @@ class _LandingScreenState extends State<LandingScreen>
       vsync: this,
     );
 
-    _heroSlideAnimation = Tween<double>(
-      begin: 100.0,
-      end: 0.0,
-    ).animate(CurvedAnimation(
-      parent: _heroAnimationController,
-      curve: Curves.easeOutBack,
-    ));
+    _heroSlideAnimation = Tween<double>(begin: 100.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _heroAnimationController,
+        curve: Curves.easeOutBack,
+      ),
+    );
 
-    _heroFadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _heroAnimationController,
-      curve: Curves.easeOut,
-    ));
+    _heroFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _heroAnimationController, curve: Curves.easeOut),
+    );
 
-    _formSlideAnimation = Tween<double>(
-      begin: 50.0,
-      end: 0.0,
-    ).animate(CurvedAnimation(
-      parent: _formAnimationController,
-      curve: Curves.easeOutCubic,
-    ));
+    _formSlideAnimation = Tween<double>(begin: 50.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _formAnimationController,
+        curve: Curves.easeOutCubic,
+      ),
+    );
 
-    _formScaleAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _formAnimationController,
-      curve: Curves.elasticOut,
-    ));
+    _formScaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _formAnimationController,
+        curve: Curves.elasticOut,
+      ),
+    );
 
     _startAnimations();
   }
@@ -101,48 +94,69 @@ class _LandingScreenState extends State<LandingScreen>
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+
+    if (authProvider.isAuthenticated) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        context.go(authProvider.getHomeRoute());
+      });
+    }
     final screenSize = MediaQuery.of(context).size;
     final isSmallScreen = screenSize.width < 600;
-    
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Color(0xFFEBF4FF),
-              Color(0xFFE0E7FF),
-            ],
+            colors: [Color(0xFFEBF4FF), Color(0xFFE0E7FF)],
           ),
         ),
         child: SafeArea(
           child: SingleChildScrollView(
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                minHeight: screenSize.height - MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom,
+                minHeight:
+                    screenSize.height -
+                    MediaQuery.of(context).padding.top -
+                    MediaQuery.of(context).padding.bottom,
               ),
               child: Padding(
-                padding: EdgeInsets.all(isSmallScreen ? AppConstants.mdSpacing : AppConstants.lgSpacing),
+                padding: EdgeInsets.all(
+                  isSmallScreen
+                      ? AppConstants.mdSpacing
+                      : AppConstants.lgSpacing,
+                ),
                 child: Column(
                   children: [
                     // Header
                     _buildHeader(),
-                    SizedBox(height: isSmallScreen ? AppConstants.lgSpacing : AppConstants.xlSpacing),
-                    
+                    SizedBox(
+                      height: isSmallScreen
+                          ? AppConstants.lgSpacing
+                          : AppConstants.xlSpacing,
+                    ),
+
                     // Hero Section
                     _buildHeroSection(isSmallScreen),
-                    SizedBox(height: isSmallScreen ? AppConstants.lgSpacing : AppConstants.xlSpacing),
-                    
+                    SizedBox(
+                      height: isSmallScreen
+                          ? AppConstants.lgSpacing
+                          : AppConstants.xlSpacing,
+                    ),
+
                     // Features Grid
                     _buildFeaturesGrid(isSmallScreen),
-                    SizedBox(height: isSmallScreen ? AppConstants.lgSpacing : AppConstants.xlSpacing),
-                    
+                    SizedBox(
+                      height: isSmallScreen
+                          ? AppConstants.lgSpacing
+                          : AppConstants.xlSpacing,
+                    ),
+
                     // Real Authentication Options
                     _buildRealAuthOptions(isSmallScreen),
                     SizedBox(height: AppConstants.lgSpacing),
-
-                  
 
                     SizedBox(height: AppConstants.lgSpacing),
 
@@ -329,7 +343,9 @@ class _LandingScreenState extends State<LandingScreen>
   Widget _buildRealAuthOptions(bool isSmallScreen) {
     return CustomCard(
       child: Padding(
-        padding: EdgeInsets.all(isSmallScreen ? AppConstants.mdSpacing : AppConstants.lgSpacing),
+        padding: EdgeInsets.all(
+          isSmallScreen ? AppConstants.mdSpacing : AppConstants.lgSpacing,
+        ),
         child: Column(
           children: [
             // Header
@@ -425,7 +441,9 @@ class _LandingScreenState extends State<LandingScreen>
       children: [
         const Expanded(child: Divider()),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppConstants.mdSpacing),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppConstants.mdSpacing,
+          ),
           child: Container(
             padding: const EdgeInsets.symmetric(
               horizontal: AppConstants.mdSpacing,
@@ -459,7 +477,9 @@ class _LandingScreenState extends State<LandingScreen>
 
     return CustomCard(
       child: Padding(
-        padding: EdgeInsets.all(isSmallScreen ? AppConstants.mdSpacing : AppConstants.lgSpacing),
+        padding: EdgeInsets.all(
+          isSmallScreen ? AppConstants.mdSpacing : AppConstants.lgSpacing,
+        ),
         child: Column(
           children: [
             // Header
@@ -502,12 +522,16 @@ class _LandingScreenState extends State<LandingScreen>
                 ),
               ],
             ),
-            SizedBox(height: isSmallScreen ? AppConstants.mdSpacing : AppConstants.lgSpacing),
-            
+            SizedBox(
+              height: isSmallScreen
+                  ? AppConstants.mdSpacing
+                  : AppConstants.lgSpacing,
+            ),
+
             // User Type Selection
             _buildUserTypeSelector(),
             const SizedBox(height: AppConstants.mdSpacing),
-            
+
             Text(
               selectedUser['description'] as String,
               style: TextStyle(
@@ -516,32 +540,48 @@ class _LandingScreenState extends State<LandingScreen>
               ),
               textAlign: TextAlign.center,
             ),
-            
-            SizedBox(height: isSmallScreen ? AppConstants.mdSpacing : AppConstants.lgSpacing),
+
+            SizedBox(
+              height: isSmallScreen
+                  ? AppConstants.mdSpacing
+                  : AppConstants.lgSpacing,
+            ),
             const Divider(),
-            SizedBox(height: isSmallScreen ? AppConstants.mdSpacing : AppConstants.lgSpacing),
-            
+            SizedBox(
+              height: isSmallScreen
+                  ? AppConstants.mdSpacing
+                  : AppConstants.lgSpacing,
+            ),
+
             // Demo Credentials
             _buildDemoCredentials(selectedUser, isSmallScreen),
-            SizedBox(height: isSmallScreen ? AppConstants.mdSpacing : AppConstants.lgSpacing),
-            
+            SizedBox(
+              height: isSmallScreen
+                  ? AppConstants.mdSpacing
+                  : AppConstants.lgSpacing,
+            ),
+
             // Sign In Button
             SizedBox(
               width: double.infinity,
               child: CustomButton(
-                onPressed: authProvider.isLoading ? null : () async {
-                  await authProvider.signInAsDemo(_selectedUserType);
-                  if (mounted) {
-                    context.go(authProvider.getHomeRoute());
-                  }
-                },
+                onPressed: authProvider.isLoading
+                    ? null
+                    : () async {
+                        await authProvider.signInAsDemo(_selectedUserType);
+                        if (mounted) {
+                          context.go(authProvider.getHomeRoute());
+                        }
+                      },
                 child: authProvider.isLoading
                     ? const SizedBox(
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
                         ),
                       )
                     : Text('Sign In as ${selectedUser['label']}'),
@@ -599,9 +639,12 @@ class _LandingScreenState extends State<LandingScreen>
     );
   }
 
-  Widget _buildDemoCredentials(Map<String, dynamic> selectedUser, bool isSmallScreen) {
+  Widget _buildDemoCredentials(
+    Map<String, dynamic> selectedUser,
+    bool isSmallScreen,
+  ) {
     final credentials = selectedUser['credentials'] as Map<String, dynamic>;
-    
+
     return Container(
       padding: const EdgeInsets.all(AppConstants.mdSpacing),
       decoration: BoxDecoration(
@@ -646,7 +689,9 @@ class _LandingScreenState extends State<LandingScreen>
           children: [
             const Expanded(child: Divider()),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppConstants.mdSpacing),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppConstants.mdSpacing,
+              ),
               child: Text(
                 'Or continue with',
                 style: TextStyle(
@@ -662,9 +707,23 @@ class _LandingScreenState extends State<LandingScreen>
         // Always use horizontal layout for social buttons
         Row(
           children: [
-            Expanded(child: _buildSocialButton('Google', IconStandards.getSocialMediaIcon('google'))),
-            SizedBox(width: isSmallScreen ? AppConstants.smSpacing : AppConstants.mdSpacing),
-            Expanded(child: _buildSocialButton('Facebook', IconStandards.getSocialMediaIcon('facebook'))),
+            Expanded(
+              child: _buildSocialButton(
+                'Google',
+                IconStandards.getSocialMediaIcon('google'),
+              ),
+            ),
+            SizedBox(
+              width: isSmallScreen
+                  ? AppConstants.smSpacing
+                  : AppConstants.mdSpacing,
+            ),
+            Expanded(
+              child: _buildSocialButton(
+                'Facebook',
+                IconStandards.getSocialMediaIcon('facebook'),
+              ),
+            ),
           ],
         ),
       ],
@@ -676,7 +735,10 @@ class _LandingScreenState extends State<LandingScreen>
       onPressed: () async {
         if (label == 'Google') {
           // Handle Google Sign-In
-          final authProvider = Provider.of<AuthProvider>(context, listen: false);
+          final authProvider = Provider.of<AuthProvider>(
+            context,
+            listen: false,
+          );
           try {
             await authProvider.signInWithGoogle();
             if (authProvider.isAuthenticated && mounted) {
@@ -703,10 +765,7 @@ class _LandingScreenState extends State<LandingScreen>
         }
       },
       icon: Icon(icon, size: 20),
-      label: Text(
-        label,
-        style: const TextStyle(fontSize: 14),
-      ),
+      label: Text(label, style: const TextStyle(fontSize: 14)),
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.symmetric(
           vertical: AppConstants.mdSpacing,
@@ -715,10 +774,7 @@ class _LandingScreenState extends State<LandingScreen>
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppConstants.mdRadius),
         ),
-        side: BorderSide(
-          color: AppTheme.borderLight,
-          width: 1,
-        ),
+        side: BorderSide(color: AppTheme.borderLight, width: 1),
       ),
     );
   }
@@ -726,15 +782,15 @@ class _LandingScreenState extends State<LandingScreen>
   IconData _getIconData(String iconName) {
     switch (iconName) {
       case 'camera':
-  return IconStandards.getUIIcon('camera');
+        return IconStandards.getUIIcon('camera');
       case 'briefcase':
-  return IconStandards.getUIIcon('business');
+        return IconStandards.getUIIcon('business');
       case 'star':
-  return IconStandards.getUIIcon('star');
+        return IconStandards.getUIIcon('star');
       case 'shield':
-  return IconStandards.getUIIcon('security');
+        return IconStandards.getUIIcon('security');
       default:
-  return IconStandards.getUIIcon('person');
+        return IconStandards.getUIIcon('person');
     }
   }
 

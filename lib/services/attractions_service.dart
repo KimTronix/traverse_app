@@ -22,7 +22,9 @@ class AttractionsService {
   }
 
   // Get attractions by owner (business owner view)
-  Future<List<Map<String, dynamic>>> getAttractionsByOwner(String ownerId) async {
+  Future<List<Map<String, dynamic>>> getAttractionsByOwner(
+    String ownerId,
+  ) async {
     try {
       final response = await SupabaseService.instance.client
           .from('attractions')
@@ -37,14 +39,16 @@ class AttractionsService {
   }
 
   // Get attractions by category
-  Future<List<Map<String, dynamic>>> getAttractionsByCategory(String category) async {
+  Future<List<Map<String, dynamic>>> getAttractionsByCategory(
+    String category,
+  ) async {
     try {
       final response = await SupabaseService.instance.client
           .from('attractions')
           .select()
           .eq('category', category)
           .order('created_at', ascending: false);
-      
+
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
       throw Exception('Failed to fetch attractions by category: $e');
@@ -57,9 +61,11 @@ class AttractionsService {
       final response = await SupabaseService.instance.client
           .from('attractions')
           .select()
-          .or('name.ilike.%$query%,description.ilike.%$query%,location.ilike.%$query%')
+          .or(
+            'name.ilike.%$query%,description.ilike.%$query%,location.ilike.%$query%',
+          )
           .order('created_at', ascending: false);
-      
+
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
       throw Exception('Failed to search attractions: $e');
@@ -81,7 +87,7 @@ class AttractionsService {
     String? website,
     List<String>? images,
     Map<String, dynamic>? openingHours,
-    double? entryFee,
+    String? entryFee,
     String? currency,
     String? priceRange,
     List<String>? amenities,
@@ -131,7 +137,7 @@ class AttractionsService {
     try {
       final response = await SupabaseService.instance.client
           .from('attractions')
-          .update(updates)  // Database trigger automatically sets updated_at
+          .update(updates) // Database trigger automatically sets updated_at
           .eq('id', id)
           .select()
           .single();
@@ -158,7 +164,7 @@ class AttractionsService {
   Future<Map<String, dynamic>> getAttractionStatistics() async {
     try {
       final allAttractions = await getAllAttractions();
-      
+
       final stats = <String, dynamic>{
         'total_attractions': allAttractions.length,
         'by_category': <String, int>{},
@@ -166,35 +172,38 @@ class AttractionsService {
         'average_rating': 0.0,
         'total_reviews': 0,
       };
-      
+
       // Calculate category distribution
       for (final attraction in allAttractions) {
         final category = attraction['category'] as String? ?? 'unknown';
-        stats['by_category'][category] = (stats['by_category'][category] ?? 0) + 1;
-        
+        stats['by_category'][category] =
+            (stats['by_category'][category] ?? 0) + 1;
+
         final status = attraction['status'] as String? ?? 'unknown';
         stats['by_status'][status] = (stats['by_status'][status] ?? 0) + 1;
       }
-      
+
       // Calculate average rating and total reviews
       double totalRating = 0.0;
       int totalReviews = 0;
       int ratedAttractions = 0;
-      
+
       for (final attraction in allAttractions) {
         final rating = attraction['rating'] as double? ?? 0.0;
         final reviewCount = attraction['review_count'] as int? ?? 0;
-        
+
         if (rating > 0) {
           totalRating += rating;
           ratedAttractions++;
         }
         totalReviews += reviewCount;
       }
-      
-      stats['average_rating'] = ratedAttractions > 0 ? totalRating / ratedAttractions : 0.0;
+
+      stats['average_rating'] = ratedAttractions > 0
+          ? totalRating / ratedAttractions
+          : 0.0;
       stats['total_reviews'] = totalReviews;
-      
+
       return stats;
     } catch (e) {
       throw Exception('Failed to get attraction statistics: $e');

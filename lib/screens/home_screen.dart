@@ -10,8 +10,8 @@ import '../utils/constants.dart';
 import '../utils/theme.dart';
 import '../utils/icon_standards.dart';
 import '../widgets/bottom_navigation.dart';
-import '../screens/stories_screen.dart';
 import '../widgets/post_widget.dart';
+import '../widgets/story_viewer.dart';
 import '../widgets/place_detail_popup.dart';
 import '../widgets/animated_fab.dart';
 import '../widgets/comments_dialog.dart';
@@ -24,8 +24,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen>
-    with TickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
   late AnimationController _headerAnimationController;
   late AnimationController _storyAnimationController;
@@ -65,29 +64,26 @@ class _HomeScreenState extends State<HomeScreen>
       vsync: this,
     );
 
-    _headerSlideAnimation = Tween<double>(
-      begin: -50.0,
-      end: 0.0,
-    ).animate(CurvedAnimation(
-      parent: _headerAnimationController,
-      curve: Curves.easeOutBack,
-    ));
+    _headerSlideAnimation = Tween<double>(begin: -50.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _headerAnimationController,
+        curve: Curves.easeOutBack,
+      ),
+    );
 
-    _headerFadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _headerAnimationController,
-      curve: Curves.easeOut,
-    ));
+    _headerFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _headerAnimationController,
+        curve: Curves.easeOut,
+      ),
+    );
 
-    _fabScaleAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _fabAnimationController,
-      curve: Curves.elasticOut,
-    ));
+    _fabScaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _fabAnimationController,
+        curve: Curves.elasticOut,
+      ),
+    );
 
     _scrollController.addListener(_onScroll);
 
@@ -119,7 +115,7 @@ class _HomeScreenState extends State<HomeScreen>
     final travelProvider = Provider.of<TravelProvider>(context);
     final screenSize = MediaQuery.of(context).size;
     final isSmallScreen = screenSize.width < 600;
-    
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
       body: SafeArea(
@@ -148,13 +144,16 @@ class _HomeScreenState extends State<HomeScreen>
                     child: AnimatedBuilder(
                       animation: _storyAnimationController,
                       builder: (context, child) => SlideTransition(
-                        position: Tween<Offset>(
-                          begin: const Offset(-1.0, 0.0),
-                          end: Offset.zero,
-                        ).animate(CurvedAnimation(
-                          parent: _storyAnimationController,
-                          curve: Curves.easeOutCubic,
-                        )),
+                        position:
+                            Tween<Offset>(
+                              begin: const Offset(-1.0, 0.0),
+                              end: Offset.zero,
+                            ).animate(
+                              CurvedAnimation(
+                                parent: _storyAnimationController,
+                                curve: Curves.easeOutCubic,
+                              ),
+                            ),
                         child: _buildStories(travelProvider, isSmallScreen),
                       ),
                     ),
@@ -165,14 +164,20 @@ class _HomeScreenState extends State<HomeScreen>
                     child: AnimatedBuilder(
                       animation: _storyAnimationController,
                       builder: (context, child) => SlideTransition(
-                        position: Tween<Offset>(
-                          begin: const Offset(1.0, 0.0),
-                          end: Offset.zero,
-                        ).animate(CurvedAnimation(
-                          parent: _storyAnimationController,
-                          curve: Curves.easeOutCubic,
-                        )),
-                        child: _buildPlacesSection(travelProvider, isSmallScreen),
+                        position:
+                            Tween<Offset>(
+                              begin: const Offset(1.0, 0.0),
+                              end: Offset.zero,
+                            ).animate(
+                              CurvedAnimation(
+                                parent: _storyAnimationController,
+                                curve: Curves.easeOutCubic,
+                              ),
+                            ),
+                        child: _buildPlacesSection(
+                          travelProvider,
+                          isSmallScreen,
+                        ),
                       ),
                     ),
                   ),
@@ -184,9 +189,16 @@ class _HomeScreenState extends State<HomeScreen>
                       builder: (context, child) => FadeTransition(
                         opacity: CurvedAnimation(
                           parent: _storyAnimationController,
-                          curve: const Interval(0.5, 1.0, curve: Curves.easeOut),
+                          curve: const Interval(
+                            0.5,
+                            1.0,
+                            curve: Curves.easeOut,
+                          ),
                         ),
-                        child: _buildPostsByOthersSection(travelProvider, isSmallScreen),
+                        child: _buildPostsByOthersSection(
+                          travelProvider,
+                          isSmallScreen,
+                        ),
                       ),
                     ),
                   ),
@@ -198,11 +210,17 @@ class _HomeScreenState extends State<HomeScreen>
                       builder: (context, child) => FadeTransition(
                         opacity: CurvedAnimation(
                           parent: _storyAnimationController,
-                          curve: const Interval(0.6, 1.0, curve: Curves.easeOut),
+                          curve: const Interval(
+                            0.6,
+                            1.0,
+                            curve: Curves.easeOut,
+                          ),
                         ),
                         child: Padding(
                           padding: EdgeInsets.symmetric(
-                            horizontal: isSmallScreen ? AppConstants.mdSpacing : AppConstants.lgSpacing,
+                            horizontal: isSmallScreen
+                                ? AppConstants.mdSpacing
+                                : AppConstants.lgSpacing,
                             vertical: AppConstants.smSpacing,
                           ),
                           child: Row(
@@ -247,7 +265,7 @@ class _HomeScreenState extends State<HomeScreen>
           Positioned(
             bottom: 80,
             right: 0,
-            child:  AnimatedFAB(
+            child: AnimatedFAB(
               onPressed: () => context.go('/traverse-ai'),
               icon: Icons.smart_toy,
               tooltip: 'Create Post',
@@ -273,10 +291,10 @@ class _HomeScreenState extends State<HomeScreen>
 
   Widget _buildHeader(AuthProvider authProvider, bool isSmallScreen) {
     return Container(
-      padding: EdgeInsets.all(isSmallScreen ? AppConstants.smSpacing : AppConstants.mdSpacing),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      padding: EdgeInsets.all(
+        isSmallScreen ? AppConstants.smSpacing : AppConstants.mdSpacing,
       ),
+      decoration: const BoxDecoration(color: Colors.white),
       child: Row(
         children: [
           // App Logo and Title
@@ -309,9 +327,9 @@ class _HomeScreenState extends State<HomeScreen>
               ),
             ],
           ),
-          
+
           const Spacer(),
-          
+
           // Search Bar (hidden on small screens)
           if (!isSmallScreen)
             Container(
@@ -326,31 +344,35 @@ class _HomeScreenState extends State<HomeScreen>
                 controller: _searchController,
                 decoration: InputDecoration(
                   hintText: 'Search destinations...',
-                  prefixIcon: Icon(IconStandards.getActionIcon('search'), size: 20),
+                  prefixIcon: Icon(
+                    IconStandards.getActionIcon('search'),
+                    size: 20,
+                  ),
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(horizontal: AppConstants.mdSpacing),
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: AppConstants.mdSpacing,
+                  ),
                 ),
               ),
             ),
-          
+
           if (!isSmallScreen) const SizedBox(width: AppConstants.smSpacing),
-          
+
           // Notifications
           CustomIconButton(
             onPressed: () => NavigationService.navigateToNotifications(context),
             icon: IconStandards.getActionIcon('notifications'),
             size: isSmallScreen ? 20 : 24,
-             color: AppTheme.primaryBlue,
+            color: AppTheme.primaryBlue,
           ),
 
           const SizedBox(width: AppConstants.smSpacing),
 
           // AI Chat - Enhanced button
           Container(
-            
             child: CustomIconButton(
               onPressed: () => context.go('/traverse-ai'),
-             icon: Icons.smart_toy,
+              icon: Icons.smart_toy,
               size: isSmallScreen ? 20 : 24,
               color: AppTheme.primaryBlue,
             ),
@@ -363,11 +385,11 @@ class _HomeScreenState extends State<HomeScreen>
             onPressed: () => NavigationService.navigateToWallet(context),
             icon: IconStandards.getUIIcon('wallet_outlined'),
             size: isSmallScreen ? 20 : 24,
-             color: AppTheme.primaryBlue,
+            color: AppTheme.primaryBlue,
           ),
-          
+
           const SizedBox(width: AppConstants.smSpacing),
-          
+
           // User Avatar
           _buildUserAvatar(authProvider, isSmallScreen),
         ],
@@ -386,7 +408,10 @@ class _HomeScreenState extends State<HomeScreen>
             : null,
         child: authProvider.userData?['avatar'] == null
             ? Text(
-                (authProvider.userData?['name'] as String?)?.substring(0, 2).toUpperCase() ?? 'U',
+                (authProvider.userData?['name'] as String?)
+                        ?.substring(0, 2)
+                        .toUpperCase() ??
+                    'U',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: isSmallScreen ? 10 : 12,
@@ -421,7 +446,11 @@ class _HomeScreenState extends State<HomeScreen>
           value: 'logout',
           child: Row(
             children: [
-              Icon(IconStandards.getUIIcon('logout'), size: 20, color: AppTheme.primaryRed),
+              Icon(
+                IconStandards.getUIIcon('logout'),
+                size: 20,
+                color: AppTheme.primaryRed,
+              ),
               SizedBox(width: 8),
               Text('Logout', style: TextStyle(color: AppTheme.primaryRed)),
             ],
@@ -444,7 +473,10 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildMyStoryWidget(TravelProvider travelProvider, bool isSmallScreen) {
+  Widget _buildMyStoryWidget(
+    TravelProvider travelProvider,
+    bool isSmallScreen,
+  ) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isVerySmallScreen = screenWidth < 375;
     final cardWidth = isVerySmallScreen ? 100.0 : 120.0;
@@ -453,11 +485,11 @@ class _HomeScreenState extends State<HomeScreen>
     final profileSize = isVerySmallScreen ? 28.0 : 32.0;
     final padding = isVerySmallScreen ? 8.0 : 12.0;
     final fontSize = isVerySmallScreen ? 10.0 : 12.0;
-    
+
     // Calculate dotted border based on user's posts count
     final postsCount = travelProvider.posts.length;
     final segments = postsCount > 0 ? postsCount : 1;
-    
+
     return GestureDetector(
       onTap: () {
         // Navigate to create story screen
@@ -473,16 +505,13 @@ class _HomeScreenState extends State<HomeScreen>
             end: Alignment.bottomCenter,
             colors: [
               Colors.black.withValues(alpha: 0.1),
-          Colors.black.withValues(alpha: 0.6),
+              Colors.black.withValues(alpha: 0.6),
             ],
           ),
           image: const DecorationImage(
             image: AssetImage('assets/images/travel-app-mockup.png'),
             fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(
-              Colors.black26,
-              BlendMode.darken,
-            ),
+            colorFilter: ColorFilter.mode(Colors.black26, BlendMode.darken),
           ),
           boxShadow: [
             BoxShadow(
@@ -522,12 +551,11 @@ class _HomeScreenState extends State<HomeScreen>
                     height: profileSize,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white,
-                        width: 2,
-                      ),
+                      border: Border.all(color: Colors.white, width: 2),
                       image: const DecorationImage(
-                        image: AssetImage('assets/images/travel-app-mockup.png'),
+                        image: AssetImage(
+                          'assets/images/travel-app-mockup.png',
+                        ),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -535,10 +563,7 @@ class _HomeScreenState extends State<HomeScreen>
                       decoration: BoxDecoration(
                         color: AppTheme.primaryBlue,
                         shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white,
-                          width: 2,
-                        ),
+                        border: Border.all(color: Colors.white, width: 2),
                       ),
                       child: Icon(
                         IconStandards.getUIIcon('add'),
@@ -547,9 +572,9 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                     ),
                   ),
-                  
+
                   const Spacer(),
-                  
+
                   // "My Story" label
                   Text(
                     'My Story',
@@ -558,10 +583,7 @@ class _HomeScreenState extends State<HomeScreen>
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
                       shadows: const [
-                        Shadow(
-                          color: Colors.black,
-                          blurRadius: 4,
-                        ),
+                        Shadow(color: Colors.black, blurRadius: 4),
                       ],
                     ),
                     maxLines: 2,
@@ -576,29 +598,32 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildPlacesSection(TravelProvider travelProvider, bool isSmallScreen) {
+  Widget _buildPlacesSection(
+    TravelProvider travelProvider,
+    bool isSmallScreen,
+  ) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isVerySmallScreen = screenWidth < 375;
     final cardHeight = isVerySmallScreen ? 200.0 : 240.0;
     final verticalPadding = isVerySmallScreen ? 12.0 : 16.0;
 
     // Filter destinations to exclude events (only show places)
-    final places = travelProvider.destinations.where((dest) =>
-      dest['category']?.toString().toLowerCase() != 'event'
-    ).toList();
+    final places = travelProvider.destinations
+        .where((dest) => dest['category']?.toString().toLowerCase() != 'event')
+        .toList();
 
     return Container(
       height: cardHeight + (verticalPadding * 2),
       padding: EdgeInsets.symmetric(vertical: verticalPadding),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-      ),
+      decoration: const BoxDecoration(color: Colors.white),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: isSmallScreen ? AppConstants.smSpacing : AppConstants.mdSpacing,
+              horizontal: isSmallScreen
+                  ? AppConstants.smSpacing
+                  : AppConstants.mdSpacing,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -631,7 +656,9 @@ class _HomeScreenState extends State<HomeScreen>
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               padding: EdgeInsets.symmetric(
-                horizontal: isSmallScreen ? AppConstants.smSpacing : AppConstants.mdSpacing,
+                horizontal: isSmallScreen
+                    ? AppConstants.smSpacing
+                    : AppConstants.mdSpacing,
               ),
               itemCount: places.length,
               physics: const BouncingScrollPhysics(),
@@ -653,14 +680,14 @@ class _HomeScreenState extends State<HomeScreen>
     final cardMargin = isVerySmallScreen ? 8.0 : 12.0;
     final borderRadius = isVerySmallScreen ? 12.0 : 16.0;
     final padding = isVerySmallScreen ? 12.0 : 16.0;
-    
+
     // Create multiple images for each place
     final List<String> placeImages = [
       destination['image'] as String? ?? 'assets/images/travel-app-mockup.png',
       'assets/images/treehouse-waterfall.png',
       'assets/images/meerkat-safari.png',
     ];
-    
+
     return GestureDetector(
       onTap: () {
         _showPlaceDetailPopup(destination, placeImages);
@@ -699,7 +726,7 @@ class _HomeScreenState extends State<HomeScreen>
                   },
                 ),
               ),
-              
+
               // Gradient overlay
               Container(
                 decoration: BoxDecoration(
@@ -713,7 +740,7 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 ),
               ),
-              
+
               // Content
               Positioned(
                 bottom: 0,
@@ -732,10 +759,7 @@ class _HomeScreenState extends State<HomeScreen>
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                           shadows: const [
-                            Shadow(
-                              color: Colors.black,
-                              blurRadius: 4,
-                            ),
+                            Shadow(color: Colors.black, blurRadius: 4),
                           ],
                         ),
                         maxLines: 2,
@@ -743,15 +767,13 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                       SizedBox(height: 4),
                       Text(
-                        destination['location'] as String? ?? 'Unknown Location',
+                        destination['location'] as String? ??
+                            'Unknown Location',
                         style: TextStyle(
                           fontSize: isVerySmallScreen ? 12 : 14,
                           color: Colors.white.withValues(alpha: 0.9),
                           shadows: const [
-                            Shadow(
-                              color: Colors.black,
-                              blurRadius: 4,
-                            ),
+                            Shadow(color: Colors.black, blurRadius: 4),
                           ],
                         ),
                         maxLines: 1,
@@ -773,10 +795,7 @@ class _HomeScreenState extends State<HomeScreen>
                               color: Colors.white,
                               fontWeight: FontWeight.w600,
                               shadows: const [
-                                Shadow(
-                                  color: Colors.black,
-                                  blurRadius: 4,
-                                ),
+                                Shadow(color: Colors.black, blurRadius: 4),
                               ],
                             ),
                           ),
@@ -812,35 +831,40 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  void _showPlaceDetailPopup(Map<String, dynamic> destination, List<String> images) {
+  void _showPlaceDetailPopup(
+    Map<String, dynamic> destination,
+    List<String> images,
+  ) {
     showDialog(
       context: context,
-      builder: (context) => PlaceDetailPopup(
-        destination: destination,
-        images: images,
-      ),
+      builder: (context) =>
+          PlaceDetailPopup(destination: destination, images: images),
     );
   }
 
   Widget _buildStories(TravelProvider travelProvider, bool isSmallScreen) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isVerySmallScreen = screenWidth < 375;
-    final storyHeight = isVerySmallScreen ? 140.0 : (isSmallScreen ? 160.0 : 180.0);
-    final verticalPadding = isVerySmallScreen ? 8.0 : (isSmallScreen ? 12.0 : 16.0);
-    
+    final storyHeight = isVerySmallScreen
+        ? 140.0
+        : (isSmallScreen ? 160.0 : 180.0);
+    final verticalPadding = isVerySmallScreen
+        ? 8.0
+        : (isSmallScreen ? 12.0 : 16.0);
+
     return Container(
       height: storyHeight,
       padding: EdgeInsets.symmetric(vertical: verticalPadding),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-      ),
+      decoration: const BoxDecoration(color: Colors.white),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Stories header
           Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: isSmallScreen ? AppConstants.smSpacing : AppConstants.mdSpacing,
+              horizontal: isSmallScreen
+                  ? AppConstants.smSpacing
+                  : AppConstants.mdSpacing,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -853,35 +877,24 @@ class _HomeScreenState extends State<HomeScreen>
                     color: AppTheme.textPrimary,
                   ),
                 ),
-                TextButton(
-                  onPressed: () => context.go('/stories'),
-                  child: Text(
-                    'View All',
-                    style: TextStyle(
-                      color: AppTheme.primaryBlue,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
-          
+
           // Stories list
           Expanded(
             child: FutureBuilder<List<Map<String, dynamic>>>(
               future: StoriesService.instance.getActiveStories(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
+                  return const Center(child: CircularProgressIndicator());
                 }
-                
+
                 final stories = snapshot.data ?? [];
-                
+
                 // Group stories by user
-                final Map<String, List<Map<String, dynamic>>> groupedStories = {};
+                final Map<String, List<Map<String, dynamic>>> groupedStories =
+                    {};
                 for (final story in stories) {
                   final userId = story['user_id'] as String;
                   if (!groupedStories.containsKey(userId)) {
@@ -889,7 +902,7 @@ class _HomeScreenState extends State<HomeScreen>
                   }
                   groupedStories[userId]!.add(story);
                 }
-                
+
                 final storyGroups = groupedStories.entries.map((entry) {
                   final userStories = entry.value;
                   return {
@@ -898,11 +911,13 @@ class _HomeScreenState extends State<HomeScreen>
                     'latest_story': userStories.first,
                   };
                 }).toList();
-                
+
                 return ListView.builder(
                   scrollDirection: Axis.horizontal,
                   padding: EdgeInsets.symmetric(
-                    horizontal: isSmallScreen ? AppConstants.smSpacing : AppConstants.mdSpacing,
+                    horizontal: isSmallScreen
+                        ? AppConstants.smSpacing
+                        : AppConstants.mdSpacing,
                   ),
                   itemCount: storyGroups.length + 1, // +1 for My Story
                   physics: const BouncingScrollPhysics(),
@@ -911,9 +926,13 @@ class _HomeScreenState extends State<HomeScreen>
                       // My Story card as first item
                       return _buildMyStoryCard(isSmallScreen);
                     }
-                    
+
                     final storyGroup = storyGroups[index - 1];
-                    return _buildStoryCard(storyGroup, isSmallScreen);
+                    return _buildStoryCard(
+                      storyGroup,
+                      storyGroups.toList(),
+                      isSmallScreen,
+                    );
                   },
                 );
               },
@@ -924,34 +943,41 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildPostsByOthersSection(TravelProvider travelProvider, bool isSmallScreen) {
+  Widget _buildPostsByOthersSection(
+    TravelProvider travelProvider,
+    bool isSmallScreen,
+  ) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isVerySmallScreen = screenWidth < 375;
     final verticalPadding = isVerySmallScreen ? 8.0 : 12.0;
 
     // Filter destinations to get only events (category='event')
-    final events = travelProvider.destinations.where((dest) =>
-      dest['category']?.toString().toLowerCase() == 'event'
-    ).toList();
+    final events = travelProvider.destinations
+        .where((dest) => dest['category']?.toString().toLowerCase() == 'event')
+        .toList();
 
     // Sort events by created_at (newest first)
     events.sort((a, b) {
-      final aDate = DateTime.tryParse(a['created_at']?.toString() ?? '') ?? DateTime.now();
-      final bDate = DateTime.tryParse(b['created_at']?.toString() ?? '') ?? DateTime.now();
+      final aDate =
+          DateTime.tryParse(a['created_at']?.toString() ?? '') ??
+          DateTime.now();
+      final bDate =
+          DateTime.tryParse(b['created_at']?.toString() ?? '') ??
+          DateTime.now();
       return bDate.compareTo(aDate);
     });
 
     return Container(
       padding: EdgeInsets.symmetric(vertical: verticalPadding),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-      ),
+      decoration: const BoxDecoration(color: Colors.white),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: isSmallScreen ? AppConstants.smSpacing : AppConstants.mdSpacing,
+              horizontal: isSmallScreen
+                  ? AppConstants.smSpacing
+                  : AppConstants.mdSpacing,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -986,17 +1012,16 @@ class _HomeScreenState extends State<HomeScreen>
                   alignment: Alignment.center,
                   child: Text(
                     'No events available',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(color: Colors.grey[600], fontSize: 16),
                   ),
                 )
               : SizedBox(
                   height: 300, // Fixed height to prevent overflow
                   child: ListView.builder(
                     padding: EdgeInsets.symmetric(
-                      horizontal: isSmallScreen ? AppConstants.smSpacing : AppConstants.mdSpacing,
+                      horizontal: isSmallScreen
+                          ? AppConstants.smSpacing
+                          : AppConstants.mdSpacing,
                     ),
                     itemCount: events.length,
                     itemBuilder: (context, index) {
@@ -1021,7 +1046,8 @@ class _HomeScreenState extends State<HomeScreen>
     final padding = isVerySmallScreen ? 12.0 : 16.0;
 
     // Get images from event (attractions have images array)
-    final List<String> eventImages = event['images'] != null && (event['images'] as List).isNotEmpty
+    final List<String> eventImages =
+        event['images'] != null && (event['images'] as List).isNotEmpty
         ? List<String>.from(event['images'])
         : [
             event['image'] as String? ?? 'assets/images/travel-app-mockup.png',
@@ -1030,8 +1056,10 @@ class _HomeScreenState extends State<HomeScreen>
           ];
 
     final user = event['users']; // From join with users table
-    final userName = user?['full_name'] ?? user?['username'] ?? 'Event Organizer';
-    final userAvatar = user?['avatar_url'] ?? 'assets/images/travel-app-mockup.png';
+    final userName =
+        user?['full_name'] ?? user?['username'] ?? 'Event Organizer';
+    final userAvatar =
+        user?['avatar_url'] ?? 'assets/images/travel-app-mockup.png';
 
     return GestureDetector(
       onTap: () {
@@ -1071,7 +1099,7 @@ class _HomeScreenState extends State<HomeScreen>
                   },
                 ),
               ),
-              
+
               // Gradient overlay
               Container(
                 decoration: BoxDecoration(
@@ -1085,7 +1113,7 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 ),
               ),
-              
+
               // User avatar at top
               Positioned(
                 top: padding,
@@ -1095,10 +1123,7 @@ class _HomeScreenState extends State<HomeScreen>
                   height: 32,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.white,
-                      width: 2,
-                    ),
+                    border: Border.all(color: Colors.white, width: 2),
                     image: DecorationImage(
                       image: AssetImage(userAvatar),
                       fit: BoxFit.cover,
@@ -1106,16 +1131,13 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 ),
               ),
-              
+
               // Engagement metrics at top right
               Positioned(
                 top: padding,
                 right: padding,
                 child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.black.withValues(alpha: 0.6),
                     borderRadius: BorderRadius.circular(12),
@@ -1158,7 +1180,7 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 ),
               ),
-              
+
               // Content at bottom
               Positioned(
                 bottom: 0,
@@ -1178,10 +1200,7 @@ class _HomeScreenState extends State<HomeScreen>
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                           shadows: const [
-                            Shadow(
-                              color: Colors.black,
-                              blurRadius: 4,
-                            ),
+                            Shadow(color: Colors.black, blurRadius: 4),
                           ],
                         ),
                         maxLines: 1,
@@ -1195,10 +1214,7 @@ class _HomeScreenState extends State<HomeScreen>
                           fontSize: isVerySmallScreen ? 12 : 14,
                           color: Colors.white.withValues(alpha: 0.9),
                           shadows: const [
-                            Shadow(
-                              color: Colors.black,
-                              blurRadius: 4,
-                            ),
+                            Shadow(color: Colors.black, blurRadius: 4),
                           ],
                         ),
                         maxLines: 1,
@@ -1216,10 +1232,7 @@ class _HomeScreenState extends State<HomeScreen>
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600,
                                 shadows: const [
-                                  Shadow(
-                                    color: Colors.black,
-                                    blurRadius: 4,
-                                  ),
+                                  Shadow(color: Colors.black, blurRadius: 4),
                                 ],
                               ),
                             )
@@ -1231,10 +1244,7 @@ class _HomeScreenState extends State<HomeScreen>
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600,
                                 shadows: const [
-                                  Shadow(
-                                    color: Colors.black,
-                                    blurRadius: 4,
-                                  ),
+                                  Shadow(color: Colors.black, blurRadius: 4),
                                 ],
                               ),
                             ),
@@ -1245,10 +1255,7 @@ class _HomeScreenState extends State<HomeScreen>
                               fontSize: isVerySmallScreen ? 10 : 11,
                               color: Colors.white.withValues(alpha: 0.8),
                               shadows: const [
-                                Shadow(
-                                  color: Colors.black,
-                                  blurRadius: 4,
-                                ),
+                                Shadow(color: Colors.black, blurRadius: 4),
                               ],
                             ),
                           ),
@@ -1262,10 +1269,7 @@ class _HomeScreenState extends State<HomeScreen>
                           fontSize: isVerySmallScreen ? 10 : 11,
                           color: Colors.white.withValues(alpha: 0.9),
                           shadows: const [
-                            Shadow(
-                              color: Colors.black,
-                              blurRadius: 4,
-                            ),
+                            Shadow(color: Colors.black, blurRadius: 4),
                           ],
                         ),
                         maxLines: 2,
@@ -1275,16 +1279,13 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 ),
               ),
-              
+
               // Image count indicator
               Positioned(
                 bottom: padding,
                 right: padding,
                 child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 2,
-                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: Colors.black.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(8),
@@ -1331,9 +1332,9 @@ class _HomeScreenState extends State<HomeScreen>
                     CircleAvatar(
                       radius: 20,
                       backgroundImage: AssetImage(
-                        (post['user'] ?? post['users'])?['avatar'] ?? 
-                        (post['user'] ?? post['users'])?['avatar_url'] ?? 
-                        'assets/images/travel-app-mockup.png'
+                        (post['user'] ?? post['users'])?['avatar'] ??
+                            (post['user'] ?? post['users'])?['avatar_url'] ??
+                            'assets/images/travel-app-mockup.png',
                       ),
                     ),
                     SizedBox(width: 12),
@@ -1342,9 +1343,9 @@ class _HomeScreenState extends State<HomeScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            (post['user'] ?? post['users'])?['name'] ?? 
-                            (post['user'] ?? post['users'])?['full_name'] ?? 
-                            'Unknown User',
+                            (post['user'] ?? post['users'])?['name'] ??
+                                (post['user'] ?? post['users'])?['full_name'] ??
+                                'Unknown User',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
@@ -1404,19 +1405,14 @@ class _HomeScreenState extends State<HomeScreen>
                         Spacer(),
                         Text(
                           post['timeAgo'] as String? ?? '1d',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                          ),
+                          style: TextStyle(color: Colors.grey[600]),
                         ),
                       ],
                     ),
                     SizedBox(height: 8),
                     Text(
                       post['caption'] as String? ?? '',
-                      style: TextStyle(
-                        fontSize: 14,
-                        height: 1.4,
-                      ),
+                      style: TextStyle(fontSize: 14, height: 1.4),
                     ),
                     SizedBox(height: 12),
                     Row(
@@ -1448,64 +1444,66 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildAnimatedPostsFeed(TravelProvider travelProvider, bool isSmallScreen) {
+  Widget _buildAnimatedPostsFeed(
+    TravelProvider travelProvider,
+    bool isSmallScreen,
+  ) {
     return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) {
-          final post = travelProvider.posts[index];
-          return AnimatedBuilder(
-            animation: _storyAnimationController,
-            builder: (context, child) {
-              final delayFactor = (index * 0.1).clamp(0.0, 1.0);
-              final animation = CurvedAnimation(
-                parent: _storyAnimationController,
-                curve: Interval(
-                  delayFactor,
-                  (delayFactor + 0.5).clamp(0.0, 1.0),
-                  curve: Curves.easeOutBack,
-                ),
-              );
+      delegate: SliverChildBuilderDelegate((context, index) {
+        final post = travelProvider.posts[index];
+        return AnimatedBuilder(
+          animation: _storyAnimationController,
+          builder: (context, child) {
+            final delayFactor = (index * 0.1).clamp(0.0, 1.0);
+            final animation = CurvedAnimation(
+              parent: _storyAnimationController,
+              curve: Interval(
+                delayFactor,
+                (delayFactor + 0.5).clamp(0.0, 1.0),
+                curve: Curves.easeOutBack,
+              ),
+            );
 
-              return SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0.0, 0.3),
-                  end: Offset.zero,
-                ).animate(animation),
-                child: FadeTransition(
-                  opacity: animation,
-                  child: Container(
-                    margin: EdgeInsets.only(
-                      bottom: isSmallScreen ? 12 : 16,
-                      left: isSmallScreen ? 12 : 16,
-                      right: isSmallScreen ? 12 : 16,
-                    ),
-                    child: PostWidget(
-                      post: post,
-                      isLiked: travelProvider.isLiked(_getPostId(post)),
-                      isSaved: travelProvider.isSaved(_getPostId(post)),
-                      onLike: () => travelProvider.toggleLike(_getPostId(post)),
-                      onSave: () => travelProvider.toggleSave(_getPostId(post)),
-                      onComment: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => CommentsDialog(
-                            postId: _getPostId(post),
-                            postTitle: post['caption'] ?? post['content'] ?? 'Post',
-                          ),
-                        );
-                      },
-                      onShare: () => _sharePost(post),
-                      onPlanTrip: () => _planSimilarTrip(post),
-                      onTap: () => _showPostDetailDialog(context, post, travelProvider),
-                    ),
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0.0, 0.3),
+                end: Offset.zero,
+              ).animate(animation),
+              child: FadeTransition(
+                opacity: animation,
+                child: Container(
+                  margin: EdgeInsets.only(
+                    bottom: isSmallScreen ? 12 : 16,
+                    left: isSmallScreen ? 12 : 16,
+                    right: isSmallScreen ? 12 : 16,
+                  ),
+                  child: PostWidget(
+                    post: post,
+                    isLiked: travelProvider.isLiked(_getPostId(post)),
+                    isSaved: travelProvider.isSaved(_getPostId(post)),
+                    onLike: () => travelProvider.toggleLike(_getPostId(post)),
+                    onSave: () => travelProvider.toggleSave(_getPostId(post)),
+                    onComment: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => CommentsDialog(
+                          postId: _getPostId(post),
+                          postTitle:
+                              post['caption'] ?? post['content'] ?? 'Post',
+                        ),
+                      );
+                    },
+                    onShare: () => _sharePost(post),
+                    onPlanTrip: () => _planSimilarTrip(post),
+                    onTap: () =>
+                        _showPostDetailDialog(context, post, travelProvider),
                   ),
                 ),
-              );
-            },
-          );
-        },
-        childCount: travelProvider.posts.length,
-      ),
+              ),
+            );
+          },
+        );
+      }, childCount: travelProvider.posts.length),
     );
   }
 
@@ -1530,7 +1528,10 @@ class _HomeScreenState extends State<HomeScreen>
                 context.go('/');
               }
             },
-            child: const Text('Logout', style: TextStyle(color: AppTheme.primaryRed)),
+            child: const Text(
+              'Logout',
+              style: TextStyle(color: AppTheme.primaryRed),
+            ),
           ),
         ],
       ),
@@ -1594,7 +1595,11 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  void _showPostDetailDialog(BuildContext context, Map<String, dynamic> post, TravelProvider travelProvider) {
+  void _showPostDetailDialog(
+    BuildContext context,
+    Map<String, dynamic> post,
+    TravelProvider travelProvider,
+  ) {
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -1639,7 +1644,8 @@ class _HomeScreenState extends State<HomeScreen>
                         context: context,
                         builder: (context) => CommentsDialog(
                           postId: _getPostId(post),
-                          postTitle: post['caption'] ?? post['content'] ?? 'Post',
+                          postTitle:
+                              post['caption'] ?? post['content'] ?? 'Post',
                         ),
                       );
                     },
@@ -1665,11 +1671,15 @@ class _HomeScreenState extends State<HomeScreen>
     try {
       // Use the trip planning service to extract trip details from the post
       final tripPlanningService = TripPlanningService();
-      final suggestedTrip = await tripPlanningService.extractTripDetailsFromPost(post);
+      final suggestedTrip = await tripPlanningService
+          .extractTripDetailsFromPost(post);
 
       // Navigate to travel plan screen with the suggested trip data
       if (mounted) {
-        NavigationService.navigateToTravelPlanWithSuggestion(context, suggestedTrip);
+        NavigationService.navigateToTravelPlanWithSuggestion(
+          context,
+          suggestedTrip,
+        );
       }
     } catch (e) {
       // If extraction fails, navigate to regular travel plan screen
@@ -1677,7 +1687,9 @@ class _HomeScreenState extends State<HomeScreen>
         NavigationService.navigateToTravelPlan(context);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Unable to extract trip details. Starting with a blank plan.'),
+            content: Text(
+              'Unable to extract trip details. Starting with a blank plan.',
+            ),
           ),
         );
       }
@@ -1716,16 +1728,13 @@ class _HomeScreenState extends State<HomeScreen>
     final currentUser = authProvider.userData;
 
     return GestureDetector(
-      onTap: () => context.go('/stories'),
+      onTap: () => context.go('/create-story'),
       child: Container(
         width: 80,
         margin: const EdgeInsets.only(right: AppConstants.smSpacing),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppConstants.mdRadius),
-          border: Border.all(
-            color: AppTheme.primaryBlue,
-            width: 2,
-          ),
+          border: Border.all(color: AppTheme.primaryBlue, width: 2),
           gradient: LinearGradient(
             colors: [
               AppTheme.primaryBlue.withValues(alpha: 0.1),
@@ -1754,11 +1763,7 @@ class _HomeScreenState extends State<HomeScreen>
                   : null,
             ),
             const SizedBox(height: AppConstants.smSpacing),
-            const Icon(
-              Icons.add,
-              color: AppTheme.primaryBlue,
-              size: 16,
-            ),
+            const Icon(Icons.add, color: AppTheme.primaryBlue, size: 16),
             const Text(
               'Your Story',
               style: TextStyle(
@@ -1774,7 +1779,11 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildStoryCard(Map<String, dynamic> storyGroup, bool isSmallScreen) {
+  Widget _buildStoryCard(
+    Map<String, dynamic> storyGroup,
+    List<Map<String, dynamic>> allStoryGroups,
+    bool isSmallScreen,
+  ) {
     final user = storyGroup['user'] as Map<String, dynamic>;
     final stories = storyGroup['stories'] as List<Map<String, dynamic>>;
     final latestStory = storyGroup['latest_story'] as Map<String, dynamic>;
@@ -1783,7 +1792,10 @@ class _HomeScreenState extends State<HomeScreen>
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => StoriesScreen(),
+            builder: (context) => StoryViewerScreen(
+              storyGroup: storyGroup,
+              allStoryGroups: allStoryGroups,
+            ),
             fullscreenDialog: true,
           ),
         );
@@ -1821,7 +1833,7 @@ class _HomeScreenState extends State<HomeScreen>
                   );
                 },
               ),
-              
+
               // Gradient overlay
               Container(
                 decoration: BoxDecoration(
@@ -1835,7 +1847,7 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 ),
               ),
-              
+
               // User avatar and info
               Positioned(
                 bottom: 8,
@@ -1875,14 +1887,17 @@ class _HomeScreenState extends State<HomeScreen>
                   ],
                 ),
               ),
-              
+
               // Story count indicator
               if (stories.length > 1)
                 Positioned(
                   top: 8,
                   right: 8,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: AppTheme.primaryBlue,
                       borderRadius: BorderRadius.circular(8),
@@ -1926,23 +1941,27 @@ class DottedBorderPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
 
-    final rect = Rect.fromLTWH(strokeWidth / 2, strokeWidth / 2,
-        size.width - strokeWidth, size.height - strokeWidth);
+    final rect = Rect.fromLTWH(
+      strokeWidth / 2,
+      strokeWidth / 2,
+      size.width - strokeWidth,
+      size.height - strokeWidth,
+    );
     final rrect = RRect.fromRectAndRadius(rect, Radius.circular(borderRadius));
-    
+
     final path = Path()..addRRect(rrect);
     final pathMetrics = path.computeMetrics();
-    
+
     for (final pathMetric in pathMetrics) {
       final totalLength = pathMetric.length;
       final segmentLength = totalLength / segments;
       final gapLength = segmentLength * 0.1; // 10% gap between segments
       final dashLength = segmentLength - gapLength;
-      
+
       for (int i = 0; i < segments; i++) {
         final startDistance = i * segmentLength;
         final endDistance = startDistance + dashLength;
-        
+
         final startPath = pathMetric.extractPath(startDistance, endDistance);
         canvas.drawPath(startPath, paint);
       }
@@ -1977,11 +1996,7 @@ class CustomIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton(
       onPressed: onPressed,
-      icon: Icon(
-        icon,
-        size: size,
-        color: color ?? AppTheme.textSecondary,
-      ),
+      icon: Icon(icon, size: size, color: color ?? AppTheme.textSecondary),
       padding: EdgeInsets.zero,
       constraints: const BoxConstraints(),
     );

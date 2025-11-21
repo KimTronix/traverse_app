@@ -6,13 +6,17 @@ import '../utils/icon_standards.dart';
 import '../services/attractions_service.dart';
 import '../providers/auth_provider.dart';
 import '../utils/logger.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../widgets/bottom_navigation.dart';
 
 class BusinessDashboardScreen extends StatefulWidget {
   const BusinessDashboardScreen({super.key});
 
   @override
-  State<BusinessDashboardScreen> createState() => _BusinessDashboardScreenState();
+  State<BusinessDashboardScreen> createState() =>
+      _BusinessDashboardScreenState();
 }
 
 class _BusinessDashboardScreenState extends State<BusinessDashboardScreen>
@@ -30,7 +34,7 @@ class _BusinessDashboardScreenState extends State<BusinessDashboardScreen>
     'hotel',
     'activity',
     'transport',
-    'event'
+    'event',
   ];
 
   final Map<String, String> categoryDisplayNames = {
@@ -39,7 +43,7 @@ class _BusinessDashboardScreenState extends State<BusinessDashboardScreen>
     'hotel': 'Hotels',
     'activity': 'Activities',
     'transport': 'Transport',
-    'event': 'Events'
+    'event': 'Events',
   };
 
   @override
@@ -84,7 +88,9 @@ class _BusinessDashboardScreenState extends State<BusinessDashboardScreen>
 
     try {
       setState(() => _isLoading = true);
-      final attractions = await _attractionsService.getAttractionsByOwner(_currentUserId!);
+      final attractions = await _attractionsService.getAttractionsByOwner(
+        _currentUserId!,
+      );
       setState(() {
         _myAttractions = attractions;
         _isLoading = false;
@@ -110,22 +116,24 @@ class _BusinessDashboardScreenState extends State<BusinessDashboardScreen>
       appBar: AppBar(
         title: const Text(
           'Dashboard',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         backgroundColor: AppTheme.primaryBlue,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
-       
+
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: Colors.white,
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white70,
           isScrollable: true,
-          tabs: categories.map((category) => Tab(text: categoryDisplayNames[category] ?? category)).toList(),
+          tabs: categories
+              .map(
+                (category) =>
+                    Tab(text: categoryDisplayNames[category] ?? category),
+              )
+              .toList(),
         ),
       ),
       body: Column(
@@ -135,27 +143,33 @@ class _BusinessDashboardScreenState extends State<BusinessDashboardScreen>
           Expanded(
             child: TabBarView(
               controller: _tabController,
-              children: categories.map((category) => _buildAttractionsList(category)).toList(),
+              children: categories
+                  .map((category) => _buildAttractionsList(category))
+                  .toList(),
             ),
           ),
         ],
       ),
-     floatingActionButton: FloatingActionButton(
-  onPressed: _showAddAttractionDialog,
-  backgroundColor: AppTheme.primaryBlue,
-  child: const Icon(Icons.add, color: Colors.white),
-  shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(AppConstants.xxlRadius),
-  ),
-),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showAddAttractionDialog,
+        backgroundColor: AppTheme.primaryBlue,
+        child: const Icon(Icons.add, color: Colors.white),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppConstants.xxlRadius),
+        ),
+      ),
       bottomNavigationBar: const CustomBottomNavigation(),
     );
   }
 
   Widget _buildStatsOverview() {
     final totalAttractions = _myAttractions.length;
-    final pendingApproval = _myAttractions.where((a) => a['status'] == 'pending').length;
-    final activeAttractions = _myAttractions.where((a) => a['status'] == 'approved').length;
+    final pendingApproval = _myAttractions
+        .where((a) => a['status'] == 'pending')
+        .length;
+    final activeAttractions = _myAttractions
+        .where((a) => a['status'] == 'approved')
+        .length;
 
     return Container(
       padding: const EdgeInsets.all(AppConstants.mdSpacing),
@@ -193,7 +207,12 @@ class _BusinessDashboardScreenState extends State<BusinessDashboardScreen>
     );
   }
 
-  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
+  Widget _buildStatCard(
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Container(
       padding: const EdgeInsets.all(AppConstants.smSpacing),
       decoration: BoxDecoration(
@@ -214,10 +233,7 @@ class _BusinessDashboardScreenState extends State<BusinessDashboardScreen>
           ),
           Text(
             label,
-            style: TextStyle(
-              fontSize: 12,
-              color: AppTheme.textSecondary,
-            ),
+            style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
           ),
         ],
       ),
@@ -250,9 +266,7 @@ class _BusinessDashboardScreenState extends State<BusinessDashboardScreen>
 
   Widget _buildAttractionsList(String category) {
     if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     final attractions = _getAttractionsForCategory(category);
@@ -262,14 +276,12 @@ class _BusinessDashboardScreenState extends State<BusinessDashboardScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.store,
-              size: 64,
-              color: Colors.grey[400],
-            ),
+            Icon(Icons.store, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
-              category == 'All' ? 'No businesses yet' : 'No ${categoryDisplayNames[category]} yet',
+              category == 'All'
+                  ? 'No businesses yet'
+                  : 'No ${categoryDisplayNames[category]} yet',
               style: TextStyle(
                 fontSize: 18,
                 color: Colors.grey[600],
@@ -279,10 +291,7 @@ class _BusinessDashboardScreenState extends State<BusinessDashboardScreen>
             const SizedBox(height: 8),
             Text(
               'Add your first business to get started',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[500],
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey[500]),
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
@@ -318,8 +327,8 @@ class _BusinessDashboardScreenState extends State<BusinessDashboardScreen>
     final statusColor = status == 'approved'
         ? AppTheme.primaryGreen
         : status == 'pending'
-            ? AppTheme.primaryOrange
-            : AppTheme.primaryRed;
+        ? AppTheme.primaryOrange
+        : AppTheme.primaryRed;
 
     return Container(
       margin: const EdgeInsets.only(bottom: AppConstants.mdSpacing),
@@ -402,7 +411,8 @@ class _BusinessDashboardScreenState extends State<BusinessDashboardScreen>
                         ),
                       ),
                     ),
-                    if (attraction['rating'] != null && attraction['rating'] > 0) ...[
+                    if (attraction['rating'] != null &&
+                        attraction['rating'] > 0) ...[
                       Icon(
                         IconStandards.getUIIcon('star'),
                         size: 16,
@@ -459,20 +469,24 @@ class _BusinessDashboardScreenState extends State<BusinessDashboardScreen>
     List<Map<String, dynamic>> filteredAttractions = category == 'All'
         ? List.from(_myAttractions)
         : _myAttractions
-            .where((attraction) => attraction['category'] == category)
-            .toList();
+              .where((attraction) => attraction['category'] == category)
+              .toList();
 
     // Apply search filter
     if (searchQuery.isNotEmpty) {
       filteredAttractions = filteredAttractions.where((attraction) {
         final name = (attraction['name'] ?? '').toString().toLowerCase();
-        final description = (attraction['description'] ?? '').toString().toLowerCase();
-        final location = (attraction['location'] ?? '').toString().toLowerCase();
+        final description = (attraction['description'] ?? '')
+            .toString()
+            .toLowerCase();
+        final location = (attraction['location'] ?? '')
+            .toString()
+            .toLowerCase();
         final query = searchQuery.toLowerCase();
 
         return name.contains(query) ||
-               description.contains(query) ||
-               location.contains(query);
+            description.contains(query) ||
+            location.contains(query);
       }).toList();
     }
 
@@ -497,45 +511,283 @@ class _BusinessDashboardScreenState extends State<BusinessDashboardScreen>
     final contactController = TextEditingController();
     final emailController = TextEditingController();
     final entryFeeController = TextEditingController();
-    final imageUrlController = TextEditingController();
+    // final imageUrlController = TextEditingController(); // Removed in favor of image picker
     final openingHoursController = TextEditingController();
     final amenitiesController = TextEditingController();
+    String? _uploadedImageUrl;
+    bool _isUploadingImage = false;
+    final ImagePicker _picker = ImagePicker();
+
+    void _showError(String message) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Error', style: TextStyle(color: Colors.red)),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    Future<void> _pickAndUploadImage(StateSetter setDialogState) async {
+      try {
+        final XFile? image = await _picker.pickImage(
+          source: ImageSource.gallery,
+        );
+        if (image == null) return;
+
+        setDialogState(() {
+          _isUploadingImage = true;
+        });
+
+        final file = File(image.path);
+        final fileExt = image.path.split('.').last;
+        final fileName = '${DateTime.now().toIso8601String()}_${image.name}';
+        final filePath = 'business_images/$fileName';
+
+        await Supabase.instance.client.storage
+            .from('attractions')
+            .upload(filePath, file);
+
+        final imageUrl = Supabase.instance.client.storage
+            .from('attractions')
+            .getPublicUrl(filePath);
+
+        setDialogState(() {
+          _uploadedImageUrl = imageUrl;
+          _isUploadingImage = false;
+        });
+      } catch (e) {
+        setDialogState(() {
+          _isUploadingImage = false;
+        });
+        if (context.mounted) {
+          _showError('Failed to upload image: $e');
+        }
+      }
+    }
+
     String selectedCategory = 'restaurant';
     String selectedCurrency = 'USD';
     String selectedPriceRange = '\$\$';
 
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppConstants.lgRadius),
-          ),
-          child: Container(
-            constraints: BoxConstraints(
-              maxWidth: 600,
-              maxHeight: MediaQuery.of(context).size.height * 0.85,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+    // Helper function to build section headers
+    Widget _buildSectionHeader(String title) {
+      return Text(
+        title,
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: AppTheme.textPrimary,
+        ),
+      );
+    }
+
+    // Helper function to build text fields
+    Widget _buildTextField({
+      required TextEditingController controller,
+      required String label,
+      required String hint,
+      required IconData icon,
+      int maxLines = 1,
+      TextInputType keyboardType = TextInputType.text,
+      String? helperText,
+      bool isRequired = false,
+    }) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (isRequired)
+            Row(
               children: [
-                // Header
-                Container(
-                  padding: const EdgeInsets.all(AppConstants.lgSpacing),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryBlue,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(AppConstants.lgRadius),
-                      topRight: Radius.circular(AppConstants.lgRadius),
+                Text(
+                  label,
+                  style: const TextStyle(fontWeight: FontWeight.w500),
+                ),
+                const SizedBox(width: 4),
+                const Text('*', style: TextStyle(color: Colors.red)),
+              ],
+            )
+          else
+            Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
+          const SizedBox(height: 4),
+          TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              hintText: hint,
+              prefixIcon: Icon(icon),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppConstants.mdRadius),
+              ),
+              filled: true,
+              fillColor: AppTheme.backgroundLight,
+              helperText: helperText,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
+            ),
+            maxLines: maxLines,
+            keyboardType: keyboardType,
+          ),
+        ],
+      );
+    }
+
+    // Helper function to build dropdowns
+    Widget _buildDropdown({
+      required String? value,
+      required Function(String?) onChanged,
+      required String label,
+      IconData? icon,
+      required List<DropdownMenuItem<String>> items,
+    }) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
+          const SizedBox(height: 4),
+          DropdownButtonFormField<String>(
+            value: value,
+            decoration: InputDecoration(
+              prefixIcon: icon != null ? Icon(icon) : null,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppConstants.mdRadius),
+              ),
+              filled: true,
+              fillColor: AppTheme.backgroundLight,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
+            ),
+            items: items,
+            onChanged: onChanged,
+            isExpanded: true,
+          ),
+        ],
+      );
+    }
+
+    // Submission logic
+    Future<void> _submitBusinessForm() async {
+      // Validate required fields
+      if (nameController.text.trim().isEmpty ||
+          descriptionController.text.trim().isEmpty ||
+          locationController.text.trim().isEmpty) {
+        _showError('Please fill in all required fields');
+        return;
+      }
+
+      try {
+        // Entry fee is stored as a string (character varying) in the DB
+        String? entryFee;
+        if (entryFeeController.text.trim().isNotEmpty) {
+          entryFee = entryFeeController.text.trim();
+        }
+
+        // Images list (uploaded image URL)
+        List<String>? images;
+        if (_uploadedImageUrl != null) {
+          images = [_uploadedImageUrl!];
+        }
+
+        // Amenities list
+        List<String>? amenities;
+        if (amenitiesController.text.trim().isNotEmpty) {
+          amenities = amenitiesController.text
+              .trim()
+              .split(',')
+              .map((e) => e.trim())
+              .where((e) => e.isNotEmpty)
+              .toList();
+        }
+
+        await _attractionsService.addAttraction(
+          name: nameController.text.trim(),
+          category: selectedCategory,
+          description: descriptionController.text.trim(),
+          location: locationController.text.trim(),
+          ownerId: _currentUserId!,
+          contactPhone: contactController.text.trim().isEmpty
+              ? null
+              : contactController.text.trim(),
+          contactEmail: emailController.text.trim().isEmpty
+              ? null
+              : emailController.text.trim(),
+          website: websiteController.text.trim().isEmpty
+              ? null
+              : websiteController.text.trim(),
+          entryFee: entryFee,
+          currency: selectedCurrency,
+          priceRange: selectedPriceRange,
+          images: images,
+          amenities: amenities,
+          openingHours: openingHoursController.text.trim().isEmpty
+              ? null
+              : {'text': openingHoursController.text.trim()},
+        );
+
+        if (context.mounted) {
+          Navigator.pop(context);
+          await _loadMyAttractions();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Business added successfully! Awaiting admin approval.'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          _showError('Failed to add business: $e');
+        }
+      }
+    }
+
+    // Show Add Business as a Bottom Sheet
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppConstants.lgRadius)),
+      ),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Header
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(AppConstants.lgSpacing),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryBlue,
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(AppConstants.lgRadius)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.business, color: Colors.white, size: 28),
-                      const SizedBox(width: AppConstants.mdSpacing),
-                      const Expanded(
-                        child: Text(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Icon(Icons.business, color: Colors.white, size: 28),
+                        const Text(
                           'Add New Business',
                           style: TextStyle(
                             fontSize: 22,
@@ -543,396 +795,316 @@ class _BusinessDashboardScreenState extends State<BusinessDashboardScreen>
                             color: Colors.white,
                           ),
                         ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close, color: Colors.white),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Colors.white, size: 24),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                // Form Content
-                Flexible(
-                  child: SingleChildScrollView(
+                  // Form Content
+                  Padding(
                     padding: const EdgeInsets.all(AppConstants.lgSpacing),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Required fields section
-                        Text(
-                          'Basic Information',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.textPrimary,
-                          ),
-                        ),
+                        _buildSectionHeader('Basic Information'),
                         const SizedBox(height: AppConstants.mdSpacing),
-                        TextField(
+
+                        _buildTextField(
                           controller: nameController,
-                          decoration: InputDecoration(
-                            labelText: 'Business Name',
-                            hintText: 'e.g., Victoria Falls Hotel',
-                            prefixIcon: Icon(Icons.storefront),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(AppConstants.mdRadius),
-                            ),
-                            filled: true,
-                            fillColor: AppTheme.backgroundLight,
-                          ),
+                          label: 'Business Name',
+                          hint: 'e.g., Victoria Falls Hotel',
+                          icon: Icons.storefront,
+                          isRequired: true,
                         ),
                         const SizedBox(height: AppConstants.mdSpacing),
-                        DropdownButtonFormField<String>(
+
+                        _buildDropdown(
                           value: selectedCategory,
-                          decoration: InputDecoration(
-                            labelText: 'Category',
-                            prefixIcon: Icon(Icons.category),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(AppConstants.mdRadius),
-                            ),
-                            filled: true,
-                            fillColor: AppTheme.backgroundLight,
-                          ),
-                          items: categories.skip(1)
-                              .map((category) => DropdownMenuItem(
-                                    value: category,
-                                    child: Text(categoryDisplayNames[category] ?? category),
-                                  ))
-                              .toList(),
                           onChanged: (value) {
                             if (value != null) {
                               setState(() => selectedCategory = value);
                             }
                           },
+                          label: 'Category',
+                          icon: Icons.category,
+                          items: categories
+                              .skip(1)
+                              .map(
+                                (category) => DropdownMenuItem(
+                                  value: category,
+                                  child: Text(
+                                    categoryDisplayNames[category] ?? category,
+                                  ),
+                                ),
+                              )
+                              .toList(),
                         ),
                         const SizedBox(height: AppConstants.mdSpacing),
-                        TextField(
+
+                        _buildTextField(
                           controller: descriptionController,
-                          decoration: InputDecoration(
-                            labelText: 'Description',
-                            hintText: 'Tell customers about your business',
-                            prefixIcon: Icon(Icons.description),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(AppConstants.mdRadius),
-                            ),
-                            filled: true,
-                            fillColor: AppTheme.backgroundLight,
-                          ),
+                          label: 'Description',
+                          hint: 'Tell customers about your business',
+                          icon: Icons.description,
                           maxLines: 4,
+                          isRequired: true,
                         ),
                         const SizedBox(height: AppConstants.mdSpacing),
-                        TextField(
+
+                        _buildTextField(
                           controller: locationController,
-                          decoration: InputDecoration(
-                            labelText: 'Location',
-                            hintText: 'City, Zimbabwe',
-                            prefixIcon: Icon(Icons.location_on),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(AppConstants.mdRadius),
-                            ),
-                            filled: true,
-                            fillColor: AppTheme.backgroundLight,
-                          ),
+                          label: 'Location',
+                          hint: 'City, Zimbabwe',
+                          icon: Icons.location_on,
+                          isRequired: true,
                         ),
                         const SizedBox(height: AppConstants.xlSpacing),
 
                         // Optional fields section
-                        Text(
-                          'Contact Information (Optional)',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.textPrimary,
-                          ),
-                        ),
+                        _buildSectionHeader('Contact Information (Optional)'),
                         const SizedBox(height: AppConstants.mdSpacing),
-                        TextField(
+
+                        _buildTextField(
                           controller: contactController,
-                          decoration: InputDecoration(
-                            labelText: 'Phone Number',
-                            hintText: '+263...',
-                            prefixIcon: Icon(Icons.phone),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(AppConstants.mdRadius),
-                            ),
-                            filled: true,
-                            fillColor: AppTheme.backgroundLight,
-                          ),
+                          label: 'Phone Number',
+                          hint: '+263...',
+                          icon: Icons.phone,
                           keyboardType: TextInputType.phone,
                         ),
                         const SizedBox(height: AppConstants.mdSpacing),
-                        TextField(
+
+                        _buildTextField(
                           controller: emailController,
-                          decoration: InputDecoration(
-                            labelText: 'Email',
-                            hintText: 'contact@business.com',
-                            prefixIcon: Icon(Icons.email),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(AppConstants.mdRadius),
-                            ),
-                            filled: true,
-                            fillColor: AppTheme.backgroundLight,
-                          ),
+                          label: 'Email',
+                          hint: 'contact@business.com',
+                          icon: Icons.email,
                           keyboardType: TextInputType.emailAddress,
                         ),
                         const SizedBox(height: AppConstants.mdSpacing),
-                        TextField(
-                          controller: websiteController,
-                          decoration: InputDecoration(
-                            labelText: 'Website',
-                            hintText: 'https://...',
-                            prefixIcon: Icon(Icons.language),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(AppConstants.mdRadius),
-                            ),
-                            filled: true,
-                            fillColor: AppTheme.backgroundLight,
-                          ),
-                          keyboardType: TextInputType.url,
-                        ),
-                        const SizedBox(height: AppConstants.xlSpacing),
 
-                        // Additional Information section
-                        Text(
-                          'Additional Information (Optional)',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.textPrimary,
+                        _buildTextField(
+                          controller: websiteController,
+                          label: 'Website',
+                          hint: 'https://example.com',
+                          icon: Icons.language,
+                          isRequired: false, // Explicitly optional
+                        ),
+                        const SizedBox(height: AppConstants.mdSpacing),
+
+                        // Image Upload Section
+                        _buildSectionHeader('Business Image'),
+                        const SizedBox(height: AppConstants.smSpacing),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey[300]!),
+                            borderRadius: BorderRadius.circular(
+                              AppConstants.mdRadius,
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              if (_uploadedImageUrl != null) ...[
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.network(
+                                    _uploadedImageUrl!,
+                                    height: 150,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                OutlinedButton.icon(
+                                  onPressed: _isUploadingImage
+                                      ? null
+                                      : () => _pickAndUploadImage(setState),
+                                  icon: const Icon(Icons.edit),
+                                  label: const Text('Change Image'),
+                                ),
+                              ] else ...[
+                                Icon(
+                                  Icons.add_photo_alternate,
+                                  size: 48,
+                                  color: Colors.grey[400],
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Upload a cover image for your business',
+                                  style: TextStyle(color: Colors.grey[600]),
+                                ),
+                                const SizedBox(height: 16),
+                                _isUploadingImage
+                                    ? const CircularProgressIndicator()
+                                    : ElevatedButton.icon(
+                                        onPressed: () =>
+                                            _pickAndUploadImage(setState),
+                                        icon: const Icon(Icons.upload),
+                                        label: const Text('Select Image'),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: AppTheme.primaryBlue,
+                                          foregroundColor: Colors.white,
+                                        ),
+                                      ),
+                              ],
+                            ],
                           ),
                         ),
                         const SizedBox(height: AppConstants.mdSpacing),
+
+                        // Additional Information section
+                        _buildSectionHeader(
+                          'Additional Information (Optional)',
+                        ),
+                        const SizedBox(height: AppConstants.mdSpacing),
+
+                        // Price row
                         Row(
                           children: [
                             Expanded(
                               flex: 2,
-                              child: TextField(
+                              child: _buildTextField(
                                 controller: entryFeeController,
-                                decoration: InputDecoration(
-                                  labelText: 'Entry Fee / Price',
-                                  hintText: '0.00',
-                                  prefixIcon: Icon(Icons.attach_money),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(AppConstants.mdRadius),
-                                  ),
-                                  filled: true,
-                                  fillColor: AppTheme.backgroundLight,
+                                label: 'Entry Fee / Price',
+                                hint: '0.00',
+                                icon: Icons.attach_money,
+                                keyboardType: TextInputType.numberWithOptions(
+                                  decimal: true,
                                 ),
-                                keyboardType: TextInputType.numberWithOptions(decimal: true),
                               ),
                             ),
-                            const SizedBox(width: AppConstants.smSpacing),
+                            const SizedBox(width: AppConstants.mdSpacing),
                             Expanded(
-                              child: DropdownButtonFormField<String>(
+                              child: _buildDropdown(
                                 value: selectedCurrency,
-                                decoration: InputDecoration(
-                                  labelText: 'Currency',
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(AppConstants.mdRadius),
-                                  ),
-                                  filled: true,
-                                  fillColor: AppTheme.backgroundLight,
-                                ),
-                                items: ['USD', 'ZWL', 'EUR', 'GBP', 'ZAR']
-                                    .map((currency) => DropdownMenuItem(
-                                          value: currency,
-                                          child: Text(currency),
-                                        ))
-                                    .toList(),
                                 onChanged: (value) {
                                   if (value != null) {
                                     setState(() => selectedCurrency = value);
                                   }
                                 },
+                                label: 'Currency',
+                                items: ['USD', 'ZWL', 'EUR', 'GBP', 'ZAR']
+                                    .map(
+                                      (currency) => DropdownMenuItem(
+                                        value: currency,
+                                        child: Text(currency),
+                                      ),
+                                    )
+                                    .toList(),
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: AppConstants.mdSpacing),
-                        DropdownButtonFormField<String>(
+
+                        _buildDropdown(
                           value: selectedPriceRange,
-                          decoration: InputDecoration(
-                            labelText: 'Price Range',
-                            prefixIcon: Icon(Icons.money),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(AppConstants.mdRadius),
-                            ),
-                            filled: true,
-                            fillColor: AppTheme.backgroundLight,
-                          ),
-                          items: [
-                            DropdownMenuItem(value: '\$', child: Text('\$ - Budget')),
-                            DropdownMenuItem(value: '\$\$', child: Text('\$\$ - Moderate')),
-                            DropdownMenuItem(value: '\$\$\$', child: Text('\$\$\$ - Expensive')),
-                            DropdownMenuItem(value: '\$\$\$\$', child: Text('\$\$\$\$ - Luxury')),
-                          ],
                           onChanged: (value) {
                             if (value != null) {
                               setState(() => selectedPriceRange = value);
                             }
                           },
+                          label: 'Price Range',
+                          icon: Icons.money,
+                          items: [
+                            DropdownMenuItem(
+                              value: '\$',
+                              child: const Text('\$ - Budget'),
+                            ),
+                            DropdownMenuItem(
+                              value: '\$\$',
+                              child: const Text('\$\$ - Moderate'),
+                            ),
+                            DropdownMenuItem(
+                              value: '\$\$\$',
+                              child: const Text('\$\$\$ - Expensive'),
+                            ),
+                            DropdownMenuItem(
+                              value: '\$\$\$\$',
+                              child: const Text('\$\$\$\$ - Luxury'),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: AppConstants.mdSpacing),
-                        TextField(
+
+                        _buildTextField(
                           controller: openingHoursController,
-                          decoration: InputDecoration(
-                            labelText: 'Opening Hours',
-                            hintText: 'e.g., Mon-Fri: 9AM-5PM, Sat: 10AM-3PM',
-                            prefixIcon: Icon(Icons.access_time),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(AppConstants.mdRadius),
-                            ),
-                            filled: true,
-                            fillColor: AppTheme.backgroundLight,
-                          ),
+                          label: 'Opening Hours',
+                          hint: 'e.g., Mon-Fri: 9AM-5PM, Sat: 10AM-3PM',
+                          icon: Icons.access_time,
                           maxLines: 2,
                         ),
                         const SizedBox(height: AppConstants.mdSpacing),
-                        TextField(
-                          controller: imageUrlController,
-                          decoration: InputDecoration(
-                            labelText: 'Image URL',
-                            hintText: 'https://example.com/image.jpg',
-                            prefixIcon: Icon(Icons.image),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(AppConstants.mdRadius),
-                            ),
-                            filled: true,
-                            fillColor: AppTheme.backgroundLight,
-                            helperText: 'Enter a direct link to an image',
-                          ),
-                          keyboardType: TextInputType.url,
-                        ),
-                        const SizedBox(height: AppConstants.mdSpacing),
-                        TextField(
+
+                        _buildTextField(
                           controller: amenitiesController,
-                          decoration: InputDecoration(
-                            labelText: 'Amenities / Features',
-                            hintText: 'WiFi, Parking, Air Conditioning, Pool',
-                            prefixIcon: Icon(Icons.stars),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(AppConstants.mdRadius),
-                            ),
-                            filled: true,
-                            fillColor: AppTheme.backgroundLight,
-                            helperText: 'Separate multiple amenities with commas',
-                          ),
+                          label: 'Amenities / Features',
+                          hint: 'WiFi, Parking, Air Conditioning, Pool',
+                          icon: Icons.stars,
                           maxLines: 2,
+                          helperText: 'Separate multiple amenities with commas',
                         ),
                       ],
                     ),
                   ),
                 ),
-                // Action Buttons
+
+                // Action Buttons - Fixed to prevent overflow
                 Container(
-                  padding: const EdgeInsets.all(AppConstants.lgSpacing),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppConstants.lgSpacing,
+                    vertical: AppConstants.mdSpacing,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     border: Border(
-                      top: BorderSide(color: AppTheme.borderLight),
+                      top: BorderSide(color: AppTheme.borderLight, width: 1),
                     ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 4,
+                        offset: const Offset(0, -2),
+                      ),
+                    ],
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppConstants.xlSpacing,
-                            vertical: AppConstants.mdSpacing,
+                      Flexible(
+                        child: TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppConstants.lgSpacing,
+                              vertical: AppConstants.mdSpacing,
+                            ),
+                            minimumSize: const Size(0, 0),
                           ),
+                          child: const Text('Cancel'),
                         ),
-                        child: const Text('Cancel'),
                       ),
                       const SizedBox(width: AppConstants.mdSpacing),
-                      ElevatedButton.icon(
-                        onPressed: () async {
-                          if (nameController.text.trim().isEmpty ||
-                              descriptionController.text.trim().isEmpty ||
-                              locationController.text.trim().isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Please fill in all required fields'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                            return;
-                          }
-
-                          try {
-                            // Parse entry fee
-                            double? entryFee;
-                            if (entryFeeController.text.trim().isNotEmpty) {
-                              entryFee = double.tryParse(entryFeeController.text.trim());
-                            }
-
-                            // Parse images (single URL for now, can be extended to multiple)
-                            List<String>? images;
-                            if (imageUrlController.text.trim().isNotEmpty) {
-                              images = [imageUrlController.text.trim()];
-                            }
-
-                            // Parse amenities (comma-separated)
-                            List<String>? amenities;
-                            if (amenitiesController.text.trim().isNotEmpty) {
-                              amenities = amenitiesController.text
-                                  .trim()
-                                  .split(',')
-                                  .map((e) => e.trim())
-                                  .where((e) => e.isNotEmpty)
-                                  .toList();
-                            }
-
-                            await _attractionsService.addAttraction(
-                              name: nameController.text.trim(),
-                              category: selectedCategory,
-                              description: descriptionController.text.trim(),
-                              location: locationController.text.trim(),
-                              ownerId: _currentUserId!,
-                              contactPhone: contactController.text.trim().isEmpty ? null : contactController.text.trim(),
-                              contactEmail: emailController.text.trim().isEmpty ? null : emailController.text.trim(),
-                              website: websiteController.text.trim().isEmpty ? null : websiteController.text.trim(),
-                              entryFee: entryFee,
-                              currency: entryFee != null ? selectedCurrency : null,
-                              priceRange: selectedPriceRange,
-                              images: images,
-                              amenities: amenities,
-                              openingHours: openingHoursController.text.trim().isEmpty
-                                  ? null
-                                  : {'text': openingHoursController.text.trim()},
-                            );
-
-                            if (mounted) {
-                              Navigator.pop(context);
-                              await _loadMyAttractions();
-
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Business added successfully! Awaiting admin approval.'),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
-                            }
-                          } catch (e) {
-                            if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Failed to add business: $e'),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
-                            }
-                          }
-                        },
-                        icon: const Icon(Icons.add),
-                        label: const Text('Add Business'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.primaryBlue,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppConstants.xlSpacing,
-                            vertical: AppConstants.mdSpacing,
+                      Flexible(
+                        child: ElevatedButton.icon(
+                          onPressed: _submitBusinessForm,
+                          icon: const Icon(Icons.add, size: 20),
+                          label: const FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text('Add Business'),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.primaryBlue,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppConstants.lgSpacing,
+                              vertical: AppConstants.mdSpacing,
+                            ),
+                            minimumSize: const Size(0, 0),
                           ),
                         ),
                       ),
@@ -949,25 +1121,41 @@ class _BusinessDashboardScreenState extends State<BusinessDashboardScreen>
 
   void _editAttraction(Map<String, dynamic> attraction) {
     final nameController = TextEditingController(text: attraction['name']);
-    final descriptionController = TextEditingController(text: attraction['description']);
-    final locationController = TextEditingController(text: attraction['location']);
-    final websiteController = TextEditingController(text: attraction['website'] ?? '');
-    final contactController = TextEditingController(text: attraction['contact_phone'] ?? '');
-    final emailController = TextEditingController(text: attraction['contact_email'] ?? '');
+    final descriptionController = TextEditingController(
+      text: attraction['description'],
+    );
+    final locationController = TextEditingController(
+      text: attraction['location'],
+    );
+    final websiteController = TextEditingController(
+      text: attraction['website'] ?? '',
+    );
+    final contactController = TextEditingController(
+      text: attraction['contact_phone'] ?? '',
+    );
+    final emailController = TextEditingController(
+      text: attraction['contact_email'] ?? '',
+    );
     final entryFeeController = TextEditingController(
-        text: attraction['entry_fee']?.toString() ?? '');
+      text: attraction['entry_fee']?.toString() ?? '',
+    );
     final imageUrlController = TextEditingController(
-        text: attraction['images'] != null && (attraction['images'] as List).isNotEmpty
-            ? (attraction['images'] as List).first
-            : '');
+      text:
+          attraction['images'] != null &&
+              (attraction['images'] as List).isNotEmpty
+          ? (attraction['images'] as List).first
+          : '',
+    );
     final openingHoursController = TextEditingController(
-        text: attraction['opening_hours'] != null
-            ? attraction['opening_hours']['text'] ?? ''
-            : '');
+      text: attraction['opening_hours'] != null
+          ? attraction['opening_hours']['text'] ?? ''
+          : '',
+    );
     final amenitiesController = TextEditingController(
-        text: attraction['amenities'] != null
-            ? (attraction['amenities'] as List).join(', ')
-            : '');
+      text: attraction['amenities'] != null
+          ? (attraction['amenities'] as List).join(', ')
+          : '',
+    );
     String selectedCategory = attraction['category'];
     String selectedCurrency = attraction['currency'] ?? 'USD';
     String selectedPriceRange = attraction['price_range'] ?? '\$\$';
@@ -995,11 +1183,16 @@ class _BusinessDashboardScreenState extends State<BusinessDashboardScreen>
                     labelText: 'Category *',
                     border: OutlineInputBorder(),
                   ),
-                  items: categories.skip(1)
-                      .map((category) => DropdownMenuItem(
-                            value: category,
-                            child: Text(categoryDisplayNames[category] ?? category),
-                          ))
+                  items: categories
+                      .skip(1)
+                      .map(
+                        (category) => DropdownMenuItem(
+                          value: category,
+                          child: Text(
+                            categoryDisplayNames[category] ?? category,
+                          ),
+                        ),
+                      )
                       .toList(),
                   onChanged: (value) {
                     if (value != null) {
@@ -1062,7 +1255,9 @@ class _BusinessDashboardScreenState extends State<BusinessDashboardScreen>
                           labelText: 'Entry Fee / Price',
                           border: OutlineInputBorder(),
                         ),
-                        keyboardType: TextInputType.numberWithOptions(decimal: true),
+                        keyboardType: TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -1074,10 +1269,12 @@ class _BusinessDashboardScreenState extends State<BusinessDashboardScreen>
                           border: OutlineInputBorder(),
                         ),
                         items: ['USD', 'ZWL', 'EUR', 'GBP', 'ZAR']
-                            .map((currency) => DropdownMenuItem(
-                                  value: currency,
-                                  child: Text(currency),
-                                ))
+                            .map(
+                              (currency) => DropdownMenuItem(
+                                value: currency,
+                                child: Text(currency),
+                              ),
+                            )
                             .toList(),
                         onChanged: (value) {
                           if (value != null) {
@@ -1097,9 +1294,18 @@ class _BusinessDashboardScreenState extends State<BusinessDashboardScreen>
                   ),
                   items: [
                     DropdownMenuItem(value: '\$', child: Text('\$ - Budget')),
-                    DropdownMenuItem(value: '\$\$', child: Text('\$\$ - Moderate')),
-                    DropdownMenuItem(value: '\$\$\$', child: Text('\$\$\$ - Expensive')),
-                    DropdownMenuItem(value: '\$\$\$\$', child: Text('\$\$\$\$ - Luxury')),
+                    DropdownMenuItem(
+                      value: '\$\$',
+                      child: Text('\$\$ - Moderate'),
+                    ),
+                    DropdownMenuItem(
+                      value: '\$\$\$',
+                      child: Text('\$\$\$ - Expensive'),
+                    ),
+                    DropdownMenuItem(
+                      value: '\$\$\$\$',
+                      child: Text('\$\$\$\$ - Luxury'),
+                    ),
                   ],
                   onChanged: (value) {
                     if (value != null) {
@@ -1183,26 +1389,29 @@ class _BusinessDashboardScreenState extends State<BusinessDashboardScreen>
                         .toList();
                   }
 
-                  await _attractionsService.updateAttraction(
-                    attraction['id'],
-                    {
-                      'name': nameController.text.trim(),
-                      'category': selectedCategory,
-                      'description': descriptionController.text.trim(),
-                      'location': locationController.text.trim(),
-                      'contact_phone': contactController.text.trim().isEmpty ? null : contactController.text.trim(),
-                      'contact_email': emailController.text.trim().isEmpty ? null : emailController.text.trim(),
-                      'website': websiteController.text.trim().isEmpty ? null : websiteController.text.trim(),
-                      'entry_fee': entryFee,
-                      'currency': entryFee != null ? selectedCurrency : null,
-                      'price_range': selectedPriceRange,
-                      'images': images,
-                      'amenities': amenities,
-                      'opening_hours': openingHoursController.text.trim().isEmpty
-                          ? null
-                          : {'text': openingHoursController.text.trim()},
-                    },
-                  );
+                  await _attractionsService.updateAttraction(attraction['id'], {
+                    'name': nameController.text.trim(),
+                    'category': selectedCategory,
+                    'description': descriptionController.text.trim(),
+                    'location': locationController.text.trim(),
+                    'contact_phone': contactController.text.trim().isEmpty
+                        ? null
+                        : contactController.text.trim(),
+                    'contact_email': emailController.text.trim().isEmpty
+                        ? null
+                        : emailController.text.trim(),
+                    'website': websiteController.text.trim().isEmpty
+                        ? null
+                        : websiteController.text.trim(),
+                    'entry_fee': entryFee,
+                    'currency': entryFee != null ? selectedCurrency : null,
+                    'price_range': selectedPriceRange,
+                    'images': images,
+                    'amenities': amenities,
+                    'opening_hours': openingHoursController.text.trim().isEmpty
+                        ? null
+                        : {'text': openingHoursController.text.trim()},
+                  });
 
                   if (mounted) {
                     Navigator.pop(context);
@@ -1239,7 +1448,9 @@ class _BusinessDashboardScreenState extends State<BusinessDashboardScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Business'),
-        content: Text('Are you sure you want to delete "${attraction['name']}"? This action cannot be undone.'),
+        content: Text(
+          'Are you sure you want to delete "${attraction['name']}"? This action cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),

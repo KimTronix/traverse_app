@@ -88,7 +88,7 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
 
     try {
       print('DEBUG: Starting story creation for user: $userId');
-      
+
       // Upload image to storage
       print('DEBUG: Uploading image...');
       final mediaUrl = await _storiesService.uploadStoryMedia(
@@ -115,7 +115,7 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
         mediaType: 'image',
         durationHours: 24,
       );
-      
+
       print('DEBUG: Story creation result: $story');
 
       if (story != null && mounted) {
@@ -157,16 +157,16 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
     final isSmallScreen = screenSize.width < 600;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
-        title: const Text(
-          'Create Story',
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Colors.black,
+        title: const Text('Create Story'),
+        backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(IconStandards.getUIIcon('close'), color: Colors.white),
+          icon: Icon(
+            IconStandards.getUIIcon('close'),
+            color: AppTheme.textPrimary,
+          ),
           onPressed: () => context.pop(),
         ),
       ),
@@ -180,12 +180,9 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                 Container(
                   width: double.infinity,
                   height: screenSize.height * 0.5,
-                  color: Colors.grey[900],
+                  color: Colors.black,
                   child: _selectedImage != null
-                      ? Image.file(
-                          _selectedImage!,
-                          fit: BoxFit.contain,
-                        )
+                      ? Image.file(_selectedImage!, fit: BoxFit.contain)
                       : Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -209,7 +206,9 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                 // Image picker buttons
                 Container(
                   padding: EdgeInsets.all(
-                    isSmallScreen ? AppConstants.mdSpacing : AppConstants.lgSpacing,
+                    isSmallScreen
+                        ? AppConstants.mdSpacing
+                        : AppConstants.lgSpacing,
                   ),
                   color: Colors.grey[900],
                   child: Row(
@@ -250,9 +249,11 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                 // Caption and location section
                 Container(
                   padding: EdgeInsets.all(
-                    isSmallScreen ? AppConstants.mdSpacing : AppConstants.lgSpacing,
+                    isSmallScreen
+                        ? AppConstants.mdSpacing
+                        : AppConstants.lgSpacing,
                   ),
-                  color: Colors.black,
+                  color: Colors.white,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -260,7 +261,7 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                       Text(
                         'Caption (Optional)',
                         style: TextStyle(
-                          color: Colors.grey[400],
+                          color: AppTheme.textSecondary,
                           fontSize: isSmallScreen ? 12 : 14,
                           fontWeight: FontWeight.w600,
                         ),
@@ -270,17 +271,21 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                         controller: _captionController,
                         maxLines: 3,
                         maxLength: 150,
-                        style: const TextStyle(color: Colors.white),
+                        style: const TextStyle(color: AppTheme.textPrimary),
                         decoration: InputDecoration(
                           hintText: 'Add a caption to your story...',
-                          hintStyle: TextStyle(color: Colors.grey[600]),
+                          hintStyle: TextStyle(color: AppTheme.textSecondary),
                           filled: true,
-                          fillColor: Colors.grey[900],
+                          fillColor: AppTheme.backgroundLight,
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(AppConstants.mdRadius),
+                            borderRadius: BorderRadius.circular(
+                              AppConstants.mdRadius,
+                            ),
                             borderSide: BorderSide.none,
                           ),
-                          contentPadding: const EdgeInsets.all(AppConstants.mdSpacing),
+                          contentPadding: const EdgeInsets.all(
+                            AppConstants.mdSpacing,
+                          ),
                         ),
                       ),
                       const SizedBox(height: AppConstants.lgSpacing),
@@ -297,20 +302,24 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                       const SizedBox(height: AppConstants.smSpacing),
                       TextField(
                         controller: _locationController,
-                        style: const TextStyle(color: Colors.white),
+                        style: const TextStyle(color: AppTheme.textPrimary),
                         decoration: InputDecoration(
                           hintText: 'Add location...',
-                          hintStyle: TextStyle(color: Colors.grey[600]),
+                          hintStyle: TextStyle(color: AppTheme.textSecondary),
                           filled: true,
-                          fillColor: Colors.grey[900],
+                          fillColor: AppTheme.backgroundLight,
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(AppConstants.mdRadius),
+                            borderRadius: BorderRadius.circular(
+                              AppConstants.mdRadius,
+                            ),
                             borderSide: BorderSide.none,
                           ),
-                          contentPadding: const EdgeInsets.all(AppConstants.mdSpacing),
+                          contentPadding: const EdgeInsets.all(
+                            AppConstants.mdSpacing,
+                          ),
                           prefixIcon: Icon(
                             IconStandards.getUIIcon('location'),
-                            color: Colors.grey[600],
+                            color: AppTheme.textSecondary,
                           ),
                         ),
                       ),
@@ -322,14 +331,14 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                           Icon(
                             IconStandards.getUIIcon('info'),
                             size: 16,
-                            color: Colors.grey[600],
+                            color: AppTheme.textSecondary,
                           ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               'Your story will be visible for 24 hours',
                               style: TextStyle(
-                                color: Colors.grey[600],
+                                color: AppTheme.textSecondary,
                                 fontSize: 12,
                               ),
                             ),
@@ -338,6 +347,13 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                       ),
                     ],
                   ),
+                ),
+
+                // Extra bottom padding so fields are not hidden behind the fixed Post button
+                SizedBox(
+                  height: (isSmallScreen
+                      ? AppConstants.xlSpacing
+                      : AppConstants.xlSpacing * 2),
                 ),
               ],
             ),
@@ -351,15 +367,14 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
               right: 0,
               child: Container(
                 padding: EdgeInsets.all(
-                  isSmallScreen ? AppConstants.mdSpacing : AppConstants.lgSpacing,
+                  isSmallScreen
+                      ? AppConstants.mdSpacing
+                      : AppConstants.lgSpacing,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.black,
+                  color: Colors.white,
                   border: Border(
-                    top: BorderSide(
-                      color: Colors.grey[800]!,
-                      width: 1,
-                    ),
+                    top: BorderSide(color: AppTheme.borderLight, width: 1),
                   ),
                 ),
                 child: CustomButton(
@@ -384,15 +399,14 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryBlue),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        AppTheme.primaryBlue,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     Text(
                       'Creating your story...',
-                      style: TextStyle(
-                        color: Colors.grey[400],
-                        fontSize: 16,
-                      ),
+                      style: TextStyle(color: Colors.grey[400], fontSize: 16),
                     ),
                   ],
                 ),
